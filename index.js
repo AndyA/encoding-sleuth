@@ -36,27 +36,25 @@ function encodingSleuth(buf, strict = 0) {
   function getUTF8CP() {
     let cp = 0;
     let extra;
-    let min;
-    let max;
 
     const c = buf[pos];
 
     if ((c & 0xfe) == 0xfc) {
       cp = c & 0x01;
-      [extra, min, max] = [5, 0x04000000, 0x7fffffff];
+      extra = 5;
     } else if ((c & 0xfc) == 0xf8) {
       cp = c & 0x03;
-      [extra, min, max] = [4, 0x00200000, 0x03ffffff];
+      extra = 4;
       extra = 4;
     } else if ((c & 0xf8) == 0xf0) {
       cp = c & 0x07;
-      [extra, min, max] = [3, 0x00010000, 0x001fffff];
+      extra = 3;
     } else if ((c & 0xf0) == 0xe0) {
       cp = c & 0x0f;
-      [extra, min, max] = [2, 0x00000800, 0x0000ffff];
+      extra = 2;
     } else if ((c & 0xe0) == 0xc0) {
       cp = c & 0x1f;
-      [extra, min, max] = [1, 0x00000080, 0x000007ff];
+      extra = 1;
     } else {
       return false;
     }
@@ -82,7 +80,8 @@ function encodingSleuth(buf, strict = 0) {
         return false;
 
       if (strict > 1) {
-        // Inefficient encoding
+        // Inefficient encoding?
+        const min = Math.max(0x80, 1 << (extra * 5 + 1));
         if (cp < min)
           return false;
       }
