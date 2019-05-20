@@ -2,7 +2,8 @@
 
 const expect = require("chai").expect;
 const encodeUTF8 = require("./lib/encode-utf8");
-const encodingSleuth = require("../");
+
+const EncodingSleuth = require("../");
 
 function sevenBitSafe() {
   let bytes = [];
@@ -11,7 +12,7 @@ function sevenBitSafe() {
   return bytes;
 }
 
-describe("encodingSleuth", () => {
+describe("EncodingSleuth", () => {
 
   function esBytes(res) {
     let out = [];
@@ -24,25 +25,25 @@ describe("encodingSleuth", () => {
     return out;
   }
 
-  function checkES(res, msg) {
+  function checkES(es, res, msg) {
     let bytes = [];
 
     for (const chunk of res)
       Array.prototype.push.apply(bytes, chunk.bytes);
 
-    const got = encodingSleuth(Buffer.from(bytes));
+    const got = es.examine(Buffer.from(bytes));
 
     expect(esBytes(got)).to.deep.equal(res, msg);
   }
 
   it("should throw on bad input", () => {
-
-    expect(() => encodingSleuth("Hello")).to.throw(/needs a Buffer/);
-
+    const es = new EncodingSleuth();
+    expect(() => es.examine("Hello")).to.throw(/needs a Buffer/);
   });
 
   it("should recognise pure 7-bit safe bytes", () => {
-    checkES([{
+    const es = new EncodingSleuth();
+    checkES(es, [{
       tag: "7bit",
       bytes: sevenBitSafe()
     }], "7-bit safe");
