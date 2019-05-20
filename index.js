@@ -5,7 +5,7 @@ class EncodingSleuth {
     this.opt = Object.assign({}, {
       maxUnknown: false,
       maxChunk: false,
-      allowInefficientEncoding: false,
+      allowNonCanonical: false,
       allowIllegalCodePoints: false,
       allowReplacement: false,
       allowSpecials: false,
@@ -50,7 +50,7 @@ class EncodingSleuth {
     const pushChunk = this._makePushChunk(buf, chunks);
 
     function utf8cp() {
-      let cp = 0;
+      let cp;
       let length;
 
       const c = buf[pos];
@@ -96,8 +96,8 @@ class EncodingSleuth {
       if (opt.maxCodePoint !== false && cp >= opt.maxCodePoint)
         return false;
 
-      // Inefficient encoding?
-      if (!opt.allowInefficientEncoding && cp < Math.max(0x80, 1 << (length * 5 - 4)))
+      // Non-canonical encoding?
+      if (!opt.allowNonCanonical && cp < Math.max(0x80, 1 << (length * 5 - 4)))
         return false;
 
       pos += length;
