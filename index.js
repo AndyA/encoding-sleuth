@@ -104,10 +104,14 @@ class EncodingSleuth {
       return cp;
     }
 
+    function finish() {
+      pos = buf.length;
+      pushChunk("unclassified");
+    }
+
     while (pos < len) {
       if (opt.maxChunk !== false && chunks.len >= opt.maxChunk) {
-        pos = buf.length;
-        pushChunk("unclassified");
+        finish();
         break;
       }
 
@@ -132,8 +136,7 @@ class EncodingSleuth {
       unknowns++;
 
       if (opt.maxUnknown !== false && unknowns >= opt.maxUnknown) {
-        pos = buf.length;
-        pushChunk("unclassified");
+        finish();
         break;
       }
     }

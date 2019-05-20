@@ -25,34 +25,8 @@ function utf8Valid(len) {
 
 function scrambleUTF8(src, amount = 0.3) {
   let buf = Buffer.from(src);
-
-  while (true) {
-    let done = false;
-    for (let p = 0; p < buf.length; p++) {
-      if (Math.random() < amount) {
-        done = true;
-        if (p === 0) {
-          // byte 0 mods
-          let c = buf[p];
-          let pfx = 1;
-          // count leading bits
-          while (c & 0x80) {
-            pfx++;
-            c = c << 1;
-          }
-          buf[p] = (buf[p] & (0xff >> pfx)) |
-            (Math.floor(Math.random() * ((1 << pfx) - 2)) ^ 1) << (8 - pfx);
-        } else {
-          // invalid top bits: 0x00, 0x01, 0x11
-          let topBits = Math.floor(Math.random() * 0x03);
-          if (topBits === 0x02)
-            topBits = 0x03
-          buf[p] = (buf[p] & 0x3f) | (topBits << 6);
-        }
-      }
-    }
-    if (done) return buf;
-  }
+  buf[0] = Math.floor(Math.random() * 64 + 128);
+  return buf;
 }
 
 function scrambledUTF8(len) {
@@ -116,12 +90,37 @@ describe("EncodingSleuth", () => {
     }], "invalid");
   });
 
-  //  it("should recognise non utf8 bytes", () => {
-  //    const es = new EncodingSleuth();
-  //    checkES(es, [{
-  //      tag: "unknown",
-  //      bytes: scrambledUTF8(40)
-  //    }], "invalid");
-  //  });
+  it("should recognise non utf8 bytes", () => {
+    const es = new EncodingSleuth();
+    checkES(es, [{
+      tag: "unknown",
+      bytes: scrambledUTF8(40)
+    }], "invalid");
+  });
+
+  it("should recognise a mixture of encodings", () => {
+    const es = new EncodingSleuth();
+    checkES(es, [
+      {
+        tag: "7bit",
+        bytes: sevenBitSafe(40)
+      }, {
+        tag: "utf8",
+        bytes: utf8Valid(40)
+      }, {
+        tag: "unknown",
+        bytes: nonUTF8(40)
+      }, {
+        tag: "7bit",
+        bytes: sevenBitSafe(40)
+      }, {
+        tag: "utf8",
+        bytes: utf8Valid(40)
+      }, {
+        tag: "unknown",
+        bytes: nonUTF8(40)
+      }
+    ], "mixed encoding");
+  });
 
 });
