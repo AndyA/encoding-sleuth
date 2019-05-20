@@ -140,6 +140,7 @@ describe("EncodingSleuth", () => {
   it("should handle invalid utf8 code points with allowIllegalCodepoints", () => {
     const es = new EncodingSleuth({
       allowIllegalCodepoints: true,
+      maxCodePoint: false, 
     });
     checkES(es, [{
       tag: "utf8",

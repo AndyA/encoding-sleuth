@@ -7,8 +7,13 @@ class EncodingSleuth {
       maxChunk: false,
       allowInefficientEncoding: false,
       allowIllegalCodepoints: false,
-      maxCodePoint: 0x110000
+      allowReplacement: false,
+      allowSpecials: false,
+      maxCodePoint: true,
     }, opt || {});
+
+    if (this.opt.maxCodePoint === true)
+      this.opt.maxCodePoint = 0x110000;
   }
 
   _makePushChunk(buf, chunks) {
@@ -57,21 +62,15 @@ class EncodingSleuth {
       const c = buf[pos];
 
       if ((c & 0xfe) === 0xfc) {
-        cp = c & 0x01;
-        extra = 5;
+        [cp, extra] = [c & 0x01, 5];
       } else if ((c & 0xfc) === 0xf8) {
-        cp = c & 0x03;
-        extra = 4;
-        extra = 4;
+        [cp, extra] = [c & 0x03, 4];
       } else if ((c & 0xf8) === 0xf0) {
-        cp = c & 0x07;
-        extra = 3;
+        [cp, extra] = [c & 0x07, 3];
       } else if ((c & 0xf0) === 0xe0) {
-        cp = c & 0x0f;
-        extra = 2;
+        [cp, extra] = [c & 0x0f, 2];
       } else if ((c & 0xe0) === 0xc0) {
-        cp = c & 0x1f;
-        extra = 1;
+        [cp, extra] = [c & 0x1f, 1];
       } else {
         return false;
       }
@@ -87,22 +86,25 @@ class EncodingSleuth {
         cp = (cp << 6) | (cc & 0x3f);
       }
 
-      if (!opt.allowIllegalCodepoints) {
-        // Illegal code points
-        if (cp >= 0xd800 && cp < 0xe000)
-          return false;
+      // Replacement char?
+      if (!opt.allowReplacement && cp === 0xfffd)
+        return false;
 
-        // Max code point
-        if (cp >= opt.maxCodePoint)
-          return false;
-      }
+      // Special character?
+      if (!opt.allowSpecials && cp >= 0xfff0 && cp < 0x10000)
+        return false;
 
-      if (!opt.allowInefficientEncoding) {
-        // Inefficient encoding?
-        const min = Math.max(0x80, 1 << (extra * 5 + 1));
-        if (cp < min)
-          return false;
-      }
+      // Illegal code points
+      if (!opt.allowIllegalCodepoints && cp >= 0xd800 && cp < 0xe000)
+        return false;
+
+      // Max code point
+      if (opt.maxCodePoint !== false && cp >= opt.maxCodePoint)
+        return false;
+
+      // Inefficient encoding?
+      if (!opt.allowInefficientEncoding && cp < Math.max(0x80, 1 << (extra * 5 + 1)))
+        return false;
 
       pos += 1 + extra;
       return cp;

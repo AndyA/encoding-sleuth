@@ -8,6 +8,7 @@ class CodePoint {
   static isValid(cp) {
     if (cp < 0x80) return false; // valid but requires no encoding
     if (cp >= 0xd800 && cp < 0xe000) return false;
+    if (cp >= 0xfff0 && cp < 0x10000) return false; // specials
     if (cp >= 0x110000) return false;
     return true;
   }
