@@ -137,9 +137,9 @@ describe("EncodingSleuth", () => {
     ], "mixed encoding");
   });
 
-  it("should handle invalid utf8 code points with allowIllegalCodepoints", () => {
+  it("should handle invalid utf8 code points with allowIllegalCodePoints", () => {
     const es = new EncodingSleuth({
-      allowIllegalCodepoints: true,
+      allowIllegalCodePoints: true,
       maxCodePoint: false, 
     });
     checkES(es, [{

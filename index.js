@@ -6,7 +6,7 @@ class EncodingSleuth {
       maxUnknown: false,
       maxChunk: false,
       allowInefficientEncoding: false,
-      allowIllegalCodepoints: false,
+      allowIllegalCodePoints: false,
       allowReplacement: false,
       allowSpecials: false,
       maxCodePoint: true,
@@ -89,7 +89,7 @@ class EncodingSleuth {
         return false;
 
       // Illegal code points
-      if (!opt.allowIllegalCodepoints && cp >= 0xd800 && cp < 0xe000)
+      if (!opt.allowIllegalCodePoints && cp >= 0xd800 && cp < 0xe000)
         return false;
 
       // Max code point
