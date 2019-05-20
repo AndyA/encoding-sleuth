@@ -6,27 +6,17 @@ class EncodingSleuth {
       maxUnknown: false,
       maxChunk: false,
       allowInefficientEncoding: false,
-      allowIllegalCodepoints: false
+      allowIllegalCodepoints: false,
+      maxCodePoint: 0x110000
     });
   }
 
-  examine(buf) {
-    if (!Buffer.isBuffer(buf))
-      throw new Error("examine needs a Buffer");
-
-    //    console.log(buf);
-
-    const opt = this.opt;
-
-    const len = buf.length;
-    let pos = 0;
+  _makePushChunk(buf, chunks) {
     let startPos = 0;
     let lastPos = 0;
     let lastTag = null;
-    let unknowns = 0;
-    let chunks = [];
 
-    function pushChunk(tag) {
+    return function(pos, tag) {
       if (0) {
         console.log("pushChunk(" + tag + ") pos=" + pos +
           " lastPos=" + lastPos +
@@ -45,6 +35,22 @@ class EncodingSleuth {
       lastPos = pos;
       lastTag = tag;
     }
+  }
+
+  examine(buf) {
+    if (!Buffer.isBuffer(buf))
+      throw new Error("examine needs a Buffer");
+
+    //    console.log(buf);
+
+    const opt = this.opt;
+    const len = buf.length;
+
+    let pos = 0;
+    let unknowns = 0;
+    let chunks = [];
+
+    const pushChunk = this._makePushChunk(buf, chunks);
 
     function getUTF8CP() {
       let cp = 0;
@@ -89,7 +95,7 @@ class EncodingSleuth {
           return false;
 
         // Max code point
-        if (cp > 0x10ffff)
+        if (cp >= opt.maxCodePoint)
           return false;
       }
 
@@ -105,8 +111,7 @@ class EncodingSleuth {
     }
 
     function finish() {
-      pos = buf.length;
-      pushChunk("unclassified");
+      pushChunk(pos = buf.length, "unclassified");
     }
 
     while (pos < len) {
@@ -118,7 +123,7 @@ class EncodingSleuth {
       if ((buf[pos] & 0x80) === 0) {
         pos++;
         while (pos < len && (buf[pos] & 0x80) === 0) pos++;
-        pushChunk("7bit");
+        pushChunk(pos, "7bit");
         continue;
       }
 
@@ -127,12 +132,12 @@ class EncodingSleuth {
         while (pos < len) {
           if (false === getUTF8CP()) break;
         }
-        pushChunk("utf8");
+        pushChunk(pos, "utf8");
         continue;
       }
 
       pos++;
-      pushChunk("unknown");
+      pushChunk(pos, "unknown");
       unknowns++;
 
       if (opt.maxUnknown !== false && unknowns >= opt.maxUnknown) {
@@ -141,7 +146,7 @@ class EncodingSleuth {
       }
     }
 
-    pushChunk("EOF"); // flush
+    pushChunk(pos, "EOF"); // flush
 
     return chunks;
   }
