@@ -44,7 +44,7 @@ describe("EncodingSleuth", () => {
     for (const chunk of res) {
       out.push({
         tag: chunk.tag,
-        bytes: Array.from(chunk.buf)
+        buf: Array.from(chunk.buf)
       });
     }
     return out;
@@ -54,7 +54,7 @@ describe("EncodingSleuth", () => {
     let bytes = [];
 
     for (const chunk of res)
-      Array.prototype.push.apply(bytes, chunk.bytes);
+      Array.prototype.push.apply(bytes, chunk.buf);
 
     const got = es.examine(Buffer.from(bytes));
 
@@ -70,7 +70,7 @@ describe("EncodingSleuth", () => {
     const es = new EncodingSleuth();
     checkES(es, [{
       tag: "7bit",
-      bytes: sevenBitSafe(40)
+      buf: sevenBitSafe(40)
     }], "7-bit safe");
   });
 
@@ -78,7 +78,7 @@ describe("EncodingSleuth", () => {
     const es = new EncodingSleuth();
     checkES(es, [{
       tag: "utf8",
-      bytes: utf8Valid(40)
+      buf: utf8Valid(40)
     }], "valid utf8");
   });
 
@@ -86,7 +86,7 @@ describe("EncodingSleuth", () => {
     const es = new EncodingSleuth();
     checkES(es, [{
       tag: "unknown",
-      bytes: nonUTF8(40)
+      buf: nonUTF8(40)
     }], "invalid");
   });
 
@@ -94,7 +94,7 @@ describe("EncodingSleuth", () => {
     const es = new EncodingSleuth();
     checkES(es, [{
       tag: "unknown",
-      bytes: scrambledUTF8(40)
+      buf: scrambledUTF8(40)
     }], "invalid");
   });
 
@@ -103,22 +103,22 @@ describe("EncodingSleuth", () => {
     checkES(es, [
       {
         tag: "7bit",
-        bytes: sevenBitSafe(40)
+        buf: sevenBitSafe(40)
       }, {
         tag: "utf8",
-        bytes: utf8Valid(40)
+        buf: utf8Valid(40)
       }, {
         tag: "unknown",
-        bytes: nonUTF8(40)
+        buf: nonUTF8(40)
       }, {
         tag: "7bit",
-        bytes: sevenBitSafe(40)
+        buf: sevenBitSafe(40)
       }, {
         tag: "utf8",
-        bytes: utf8Valid(40)
+        buf: utf8Valid(40)
       }, {
         tag: "unknown",
-        bytes: nonUTF8(40)
+        buf: nonUTF8(40)
       }
     ], "mixed encoding");
   });
