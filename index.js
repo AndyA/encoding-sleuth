@@ -22,14 +22,8 @@ class EncodingSleuth {
     let lastTag = null;
 
     return function(pos, tag) {
-      if (0) {
-        console.log("pushChunk(" + tag + ") pos=" + pos +
-          " lastPos=" + lastPos +
-          " startPos=" + startPos +
-          " lastTag=" + lastTag);
-      }
-
       if (tag !== lastTag && startPos !== lastPos) {
+        // push pending chunk
         chunks.push({
           tag: lastTag,
           buf: buf.slice(startPos, lastPos)
@@ -55,7 +49,7 @@ class EncodingSleuth {
 
     const pushChunk = this._makePushChunk(buf, chunks);
 
-    function getUTF8CP() {
+    function utf8cp() {
       let cp = 0;
       let extra;
 
@@ -127,9 +121,9 @@ class EncodingSleuth {
         continue;
       }
 
-      if (false !== getUTF8CP()) {
+      if (false !== utf8cp()) {
         while (pos < len) {
-          if (false === getUTF8CP()) break;
+          if (false === utf8cp()) break;
         }
         pushChunk(pos, "utf8");
         continue;
