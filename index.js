@@ -1,15 +1,29 @@
 "use strict";
 
 class EncodingSleuth {
+  constructor(opt) {
+    this.opt = Object.assign({}, opt || {}, {
+      maxUnknown: false,
+      maxChunk: false,
+      allowInefficientEncoding: false,
+      allowIllegalCodepoints: false
+    });
+  }
+
   examine(buf) {
     if (!Buffer.isBuffer(buf))
       throw new Error("examine needs a Buffer");
+
+    //    console.log(buf);
+
+    const opt = this.opt;
 
     const len = buf.length;
     let pos = 0;
     let startPos = 0;
     let lastPos = 0;
     let lastTag = null;
+    let unknowns = 0;
     let chunks = [];
 
     function pushChunk(tag) {
@@ -20,9 +34,7 @@ class EncodingSleuth {
           " lastTag=" + lastTag);
       }
 
-      if (tag === lastTag) return;
-
-      if (startPos !== lastPos) {
+      if (tag !== lastTag && startPos !== lastPos) {
         chunks.push({
           tag: lastTag,
           buf: buf.slice(startPos, lastPos)
@@ -71,9 +83,7 @@ class EncodingSleuth {
         cp = (cp << 6) | (cc & 0x3f);
       }
 
-      const strict = 2;
-
-      if (strict > 0) {
+      if (!opt.allowIllegalCodepoints) {
         // Illegal code points
         if (cp >= 0xd800 && cp < 0xe000)
           return false;
@@ -81,13 +91,13 @@ class EncodingSleuth {
         // Max code point
         if (cp > 0x10ffff)
           return false;
+      }
 
-        if (strict > 1) {
-          // Inefficient encoding?
-          const min = Math.max(0x80, 1 << (extra * 5 + 1));
-          if (cp < min)
-            return false;
-        }
+      if (!opt.allowInefficientEncoding) {
+        // Inefficient encoding?
+        const min = Math.max(0x80, 1 << (extra * 5 + 1));
+        if (cp < min)
+          return false;
       }
 
       pos += 1 + extra;
@@ -95,6 +105,12 @@ class EncodingSleuth {
     }
 
     while (pos < len) {
+      if (opt.maxChunk !== false && chunks.len >= opt.maxChunk) {
+        pos = buf.length;
+        pushChunk("unclassified");
+        break;
+      }
+
       if ((buf[pos] & 0x80) === 0) {
         pos++;
         while (pos < len && (buf[pos] & 0x80) === 0) pos++;
@@ -113,6 +129,13 @@ class EncodingSleuth {
 
       pos++;
       pushChunk("unknown");
+      unknowns++;
+
+      if (opt.maxUnknown !== false && unknowns >= opt.maxUnknown) {
+        pos = buf.length;
+        pushChunk("unclassified");
+        break;
+      }
     }
 
     pushChunk("EOF"); // flush

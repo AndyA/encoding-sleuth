@@ -2,23 +2,12 @@
 
 const encodeUTF8 = require("./lib/encode-utf8");
 const decodeUTF8 = require("./lib/decode-utf8");
+const CodePoint = require("./lib/codepoint");
 const expect = require("chai").expect;
-
-function randomValidCodePoint() {
-  while (true) {
-    const cp = Math.floor(Math.random() * 0x110000);
-    if ((cp >= 0x80 && cp < 0xd800) || cp >= 0xe000)
-      return cp;
-  }
-}
-
-function randomCodePoint() {
-  return Math.floor(Math.pow(Math.random(), 6) * 0x80000000);
-}
 
 describe("encodeUTF8", () => {
   for (let i = 0; i < 20; i++) {
-    const cp = randomValidCodePoint();
+    const cp = CodePoint.randomValidCodePoint();
 
     it("should encode 0x" + cp.toString(16), () => {
       const want = Array.from(Buffer.from(String.fromCodePoint(cp)));
@@ -41,7 +30,7 @@ describe("encodeUTF8", () => {
   }
 
   for (let i = 0; i < 20; i++) {
-    const cp = randomCodePoint();
+    const cp = CodePoint.randomCodePoint();
 
     it("should round trip 0x" + cp.toString(16), () => {
       const got = decodeUTF8(encodeUTF8(cp));
