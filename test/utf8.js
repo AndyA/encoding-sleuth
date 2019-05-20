@@ -7,7 +7,7 @@ const expect = require("chai").expect;
 
 describe("encodeUTF8", () => {
   for (let i = 0; i < 20; i++) {
-    const cp = CodePoint.randomValidCodePoint();
+    const cp = CodePoint.randomValid();
 
     it("should encode 0x" + cp.toString(16), () => {
       const want = Array.from(Buffer.from(String.fromCodePoint(cp)));
@@ -30,7 +30,7 @@ describe("encodeUTF8", () => {
   }
 
   for (let i = 0; i < 20; i++) {
-    const cp = CodePoint.randomCodePoint();
+    const cp = CodePoint.random();
 
     it("should round trip 0x" + cp.toString(16), () => {
       const got = decodeUTF8(encodeUTF8(cp));
@@ -41,6 +41,7 @@ describe("encodeUTF8", () => {
       const baseline = encodeUTF8(cp);
       const len = Math.min(6, Math.floor(baseline.length + 1 + Math.random() * (6 - baseline.length)));
       const enc = encodeUTF8(cp, len);
+
       expect(enc.length).to.equal(len);
       expect(decodeUTF8(enc)).to.equal(cp);
     });

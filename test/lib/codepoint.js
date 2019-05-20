@@ -12,20 +12,20 @@ class CodePoint {
     return true;
   }
 
-  static randomValidCodePoint(pow = 3) {
+  static randomValid(pow = 3) {
     while (true) {
       const cp = Math.floor(this.biasedRandom(pow) * 0x110000);
       if (this.isValid(cp)) return cp;
     }
   }
 
-  static randomCodePoint(pow = 6) {
+  static random(pow = 6) {
     return Math.floor(this.biasedRandom(pow) * 0x80000000);
   }
 
-  static randomInvalidCodePoint(pow = 6) {
+  static randomInvalid(pow = 6) {
     while (true) {
-      const cp = this.randomCodePoint(pow);
+      const cp = this.random(pow);
       if (!this.isValid(cp)) return cp;
     }
   }

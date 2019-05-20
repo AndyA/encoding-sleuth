@@ -20,7 +20,7 @@ function sevenBitSafe(len) {
 }
 
 function utf8Valid(len) {
-  return generateBytes(len, () => encodeUTF8(CodePoint.randomValidCodePoint()));
+  return generateBytes(len, () => encodeUTF8(CodePoint.randomValid()));
 }
 
 function scrambleUTF8(src, amount = 0.3) {
@@ -30,7 +30,7 @@ function scrambleUTF8(src, amount = 0.3) {
 }
 
 function scrambledUTF8(len) {
-  return generateBytes(len, () => scrambleUTF8(encodeUTF8(CodePoint.randomCodePoint())));
+  return generateBytes(len, () => scrambleUTF8(encodeUTF8(CodePoint.random())));
 }
 
 function nonUTF8(len) {
