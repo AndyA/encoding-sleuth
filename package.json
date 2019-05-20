@@ -1,0 +1,31 @@
+{
+   "author" : "Andy Armstrong <andy@hexten.net>",
+   "bugs" : {
+      "url" : "https://github.com/AndyA/encoding-sleuth/issues"
+   },
+   "description" : "Scan a buffer for 7-bit safe, utf8 and non-utf8 >= 0x80 bytes returning a list of tagged Buffers",
+   "devDependencies" : {
+      "chai" : "^4.2.0",
+      "mocha" : "^6.1.4"
+   },
+   "homepage" : "https://github.com/AndyA/encoding-sleuth#readme",
+   "keywords" : [
+      "encoding",
+      "utf8",
+      "ascii",
+      "latin1",
+      "analyse"
+   ],
+   "license" : "MIT",
+   "main" : "index.js",
+   "name" : "encoding-sleuth",
+   "repository" : {
+      "type" : "git",
+      "url" : "git+https://github.com/AndyA/encoding-sleuth.git"
+   },
+   "scripts" : {
+      "test" : "mocha -R spec test",
+      "watch" : "mocha -R spec --watch test"
+   },
+   "version" : "0.1.0"
+}
