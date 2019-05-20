@@ -26,7 +26,7 @@ class CodePoint {
   static randomInvalid(pow = 6) {
     while (true) {
       const cp = this.random(pow);
-      if (!this.isValid(cp)) return cp;
+      if (!this.isValid(cp) && cp >= 0x80) return cp;
     }
   }
 }

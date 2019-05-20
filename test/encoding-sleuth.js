@@ -23,6 +23,10 @@ function utf8Valid(len) {
   return generateBytes(len, () => encodeUTF8(CodePoint.randomValid()));
 }
 
+function utf8Invalid(len) {
+  return generateBytes(len, () => encodeUTF8(CodePoint.randomInvalid()));
+}
+
 function scrambleUTF8(src, amount = 0.3) {
   let buf = Buffer.from(src);
   buf[0] = Math.floor(Math.random() * 64 + 128);
@@ -70,12 +74,22 @@ describe("EncodingSleuth", () => {
     const es = new EncodingSleuth();
     checkES(es, [{
       tag: "7bit",
+      buf: sevenBitSafe(1)
+    }], "7-bit safe");
+
+    checkES(es, [{
+      tag: "7bit",
       buf: sevenBitSafe(40)
     }], "7-bit safe");
   });
 
   it("should recognise pure valid utf8 bytes", () => {
     const es = new EncodingSleuth();
+    checkES(es, [{
+      tag: "utf8",
+      buf: utf8Valid(1)
+    }], "valid utf8");
+
     checkES(es, [{
       tag: "utf8",
       buf: utf8Valid(40)
@@ -121,6 +135,20 @@ describe("EncodingSleuth", () => {
         buf: nonUTF8(40)
       }
     ], "mixed encoding");
+  });
+
+  it("should handle invalid utf8 code points with allowIllegalCodepoints", () => {
+    const es = new EncodingSleuth({
+      allowIllegalCodepoints: true,
+    });
+    checkES(es, [{
+      tag: "utf8",
+      buf: utf8Invalid(1)
+    }], "invalid utf8");
+    checkES(es, [{
+      tag: "utf8",
+      buf: utf8Invalid(40)
+    }], "invalid utf8");
   });
 
 });

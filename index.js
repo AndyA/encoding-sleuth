@@ -2,13 +2,13 @@
 
 class EncodingSleuth {
   constructor(opt) {
-    this.opt = Object.assign({}, opt || {}, {
+    this.opt = Object.assign({}, {
       maxUnknown: false,
       maxChunk: false,
       allowInefficientEncoding: false,
       allowIllegalCodepoints: false,
       maxCodePoint: 0x110000
-    });
+    }, opt || {});
   }
 
   _makePushChunk(buf, chunks) {
@@ -40,8 +40,6 @@ class EncodingSleuth {
   examine(buf) {
     if (!Buffer.isBuffer(buf))
       throw new Error("examine needs a Buffer");
-
-    //    console.log(buf);
 
     const opt = this.opt;
     const len = buf.length;
@@ -127,7 +125,6 @@ class EncodingSleuth {
         continue;
       }
 
-      const cp = getUTF8CP();
       if (false !== getUTF8CP()) {
         while (pos < len) {
           if (false === getUTF8CP()) break;
