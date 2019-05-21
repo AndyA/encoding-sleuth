@@ -164,8 +164,6 @@ class ESIterator {
 class EncodingSleuth {
   constructor(opt) {
     this.opt = Object.assign({}, {
-      maxUnknown: false,
-      maxChunk: false,
       checkUTF8Illegal: true,
       checkUTF8Replacement: true,
       checkUTF8Specials: true,

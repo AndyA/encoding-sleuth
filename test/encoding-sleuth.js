@@ -286,7 +286,7 @@ function filterFlags(want, allow) {
 function testSleuth(want, msg) {
   const flags = Array.from(flagsSeen(want)).sort();
 
-  if (1 || 0 === flags.length) {
+  if (0 === flags.length) {
     // no permutations
     const es = new EncodingSleuth();
     checkSleuth(es, want, msg);
