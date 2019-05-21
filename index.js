@@ -104,13 +104,16 @@ class ESIterator {
     }
 
     function addBuffer(span) {
-      if (!span) return {
-          done: true
+      if (span) {
+        span.buf = buf.slice(span.pos, span.pos + span.length);
+        return {
+          done: false,
+          value: span
         };
-      span.buf = buf.slice(span.pos, span.pos + span.length);
+      }
+
       return {
-        done: false,
-        value: span
+        done: true
       };
     }
 
@@ -182,7 +185,7 @@ class EncodingSleuth {
       this.opt.checkUTF8MaxCodePoint = 0x110000;
   }
 
-  iterator(buf) {
+  analyse(buf) {
     if (!Buffer.isBuffer(buf))
       throw new Error("analyse needs a Buffer");
     return new ESIterator(this.opt, buf);

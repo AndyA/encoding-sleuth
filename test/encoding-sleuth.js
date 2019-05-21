@@ -254,7 +254,7 @@ function checkSleuth(es, ref, msg) {
     for (const ch of want)
       Array.prototype.push.apply(bytes, ch.buf);
 
-    const got = Array.from(es.iterator(Buffer.from(bytes)));
+    const got = Array.from(es.analyse(Buffer.from(bytes)));
 
     //    console.log({ want, got });
 
@@ -317,11 +317,11 @@ function testSleuth(want, msg) {
 }
 
 describe.only("EncodingSleuth", () => {
-  describe("iterator", () => {
+  describe("analyse", () => {
 
     it("should throw on bad input", () => {
       const es = new EncodingSleuth();
-      expect(() => es.iterator("Hello")).to.throw(/needs a Buffer/i);
+      expect(() => es.analyse("Hello")).to.throw(/needs a Buffer/i);
     });
 
     const len = 1000;
