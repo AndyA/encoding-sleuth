@@ -13,15 +13,7 @@ class EncodingSleuth {
       checkUTF8MaxCodePoint: true,
       checkUTF8NonCanonicalEncoding: true,
       checkUTF8: true,
-      allowNonCanonical: false,
-      allowIllegalCodePoints: false,
-      allowReplacement: false,
-      allowSpecials: false,
-      maxCodePoint: true,
     }, opt || {});
-
-    if (this.opt.maxCodePoint === true)
-      this.opt.maxCodePoint = 0x110000;
 
     if (this.opt.checkUTF8MaxCodePoint === true)
       this.opt.checkUTF8MaxCodePoint = 0x110000;

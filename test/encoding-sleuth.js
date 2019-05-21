@@ -17,10 +17,14 @@ const checkMap = {
   checkUTF8NonCanonicalEncoding: "non-canonical"
 };
 
+function parseFlags(flags) {
+  return flags.split(/\s+/).filter(x => x.length);
+}
+
 function addFlags(flags, extra) {
   if (!_.isArray(extra))
     return addFlags(flags, [extra]);
-  let list = flags.split(/\s+/).filter(x => x.length);
+  let list = parseFlags(flags);
   let seen = new Set(list);
   for (const f of extra) {
     if (seen.has(f)) continue;
@@ -200,26 +204,44 @@ function mergeSpans(spans) {
   let lastFlags = null;
   let pos = 0;
 
+  function mergeSpan(a, b) {
+    let cp = a.cp.slice(0);
+    Array.prototype.push.apply(cp, b.cp);
+    let buf = Buffer.alloc(a.length + b.length);
+    a.buf.copy(buf, 0);
+    b.buf.copy(buf, a.length);
+    return {
+      enc: a.enc,
+      flags: a.flags,
+      length: a.length + b.length,
+      pos: a.pos,
+      cp,
+      buf,
+    }
+  }
+
+  function cloneSpan(span) {
+    return mergeSpan(span, {
+      length: 0,
+      cp: [],
+      buf: Buffer.from([])
+    });
+  }
+
   for (const span of spans) {
     if (lastEnc === null || lastEnc !== span.enc
       || lastFlags === null || lastFlags !== span.flags) {
-      span.pos = pos;
+      let newSpan = cloneSpan(span);
+      newSpan.pos = pos;
       pos += span.length;
-      out.push(span);
+      out.push(newSpan);
       lastEnc = span.enc;
       lastFlags = span.flags;
       continue;
     }
 
-    let last = out.pop();
-    Array.prototype.push.apply(last.cp, span.cp);
-    let buf = Buffer.alloc(last.length + span.length);
-    last.buf.copy(buf, 0);
-    span.buf.copy(buf, last.length);
-    last.buf = buf;
-    last.length += span.length;
     pos += span.length;
-    out.push(last);
+    out.push(mergeSpan(out.pop(), span));
   }
   return out;
 }
@@ -235,8 +257,6 @@ function checkAnalyse(es, ref, msg) {
     let got = [];
     es.analyse(Buffer.from(bytes), span => got.push(span));
 
-    //                console.log({ got, want });
-
     expect(got).to.deep.equal(want, msg);
   });
 }
@@ -251,15 +271,47 @@ function flagsSeen(want) {
   return flags;
 }
 
-function testAnalyse(want, msg) {
-  const flags = flagsSeen(want);
+function filterFlags(want, allow) {
+  let out = [];
+  for (const span of want) {
+    const flags = parseFlags(span.flags).filter(f => allow.has(f));
+    out.push(Object.assign({}, span, {
+      flags: flags.join(" ")
+    }));
+  }
+  return out;
+}
 
-  if (true || 0 === flags.size) {
+function testAnalyse(want, msg) {
+  const flags = Array.from(flagsSeen(want)).sort();
+
+  if (0 === flags.length) {
     // no permutations
     const es = new EncodingSleuth();
     checkAnalyse(es, want, msg);
     return;
   }
+
+  const flagToOpt = _.invert(checkMap);
+  const lim = 1 << flags.length;
+  for (let sel = 0; sel < lim; sel++) {
+    let opt = {};
+    let allow = new Set();
+    for (let bit = 0; bit < flags.length; bit++) {
+      const flag = flags[bit];
+      const name = flagToOpt[flag];
+      const ok = (sel & (1 << bit)) !== 0;
+      opt[name] = ok;
+      if (ok) allow.add(flag);
+    }
+    const allowed = Array.from(allow);
+    if (!allowed.length) allowed.push("none");
+    const desc = " (flags: " + allowed.join(", ") + ")";
+    const test = filterFlags(want, allow);
+    const es = new EncodingSleuth(opt);
+    checkAnalyse(es, test, msg + desc);
+  }
+
 
 }
 
@@ -272,11 +324,12 @@ describe.only("EncodingSleuth", () => {
       expect(() => es.analyse(Buffer.from("Hello"), "func")).to.throw(/needs a function/i);
     });
 
-    testAnalyse(randToSpans(random7bit(), 1000), "7bit");
-    testAnalyse(randToSpans(randomUTF8(), 1000), "utf8");
-    testAnalyse(randToSpans(randomBad(), 1000), "bad");
-    testAnalyse(randToSpans(randomCorruptUTF8(), 1000), "corrupt utf8");
-    testAnalyse(randToSpans(randomAnything(), 1000), "a mixture");
+    const len = 1000;
+    testAnalyse(randToSpans(random7bit(), len), "7bit");
+    testAnalyse(randToSpans(randomUTF8(), len), "utf8");
+    testAnalyse(randToSpans(randomBad(), len), "bad");
+    testAnalyse(randToSpans(randomCorruptUTF8(), len), "corrupt utf8");
+    testAnalyse(randToSpans(randomAnything(), len), "a mixture");
 
   });
 
