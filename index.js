@@ -2,37 +2,17 @@
 
 const _ = require("lodash");
 
-class EncodingSleuth {
-  constructor(opt) {
-    this.opt = Object.assign({}, {
-      maxUnknown: false,
-      maxChunk: false,
-      checkUTF8Illegal: true,
-      checkUTF8Replacement: true,
-      checkUTF8Specials: true,
-      checkUTF8MaxCodePoint: true,
-      checkUTF8NonCanonicalEncoding: true,
-      checkUTF8: true,
-    }, opt || {});
-
-    if (!(this.opt.checkUTF8Illegal
-      || this.opt.checkUTF8Replacement
-      || this.opt.checkUTF8Specials
-      || this.opt.checkUTF8MaxCodePoint
-      || this.opt.checkUTF8NonCanonicalEncoding))
-      this.opt.checkUTF8 = false;
-
-    if (this.opt.checkUTF8MaxCodePoint === true)
-      this.opt.checkUTF8MaxCodePoint = 0x110000;
+class ESIterator {
+  constructor(opt, buf) {
+    this.opt = opt;
+    this.buf = buf;
   }
 
-  iterator(buf) {
-    if (!Buffer.isBuffer(buf))
-      throw new Error("analyse needs a Buffer");
+  [ Symbol.iterator]() {
 
     const opt = this.opt;
+    let buf = this.buf;
     const len = buf.length;
-
     let pos = 0;
 
     function nextUTF8(peek) {
@@ -124,9 +104,14 @@ class EncodingSleuth {
     }
 
     function addBuffer(span) {
-      if (span)
-        span.buf = buf.slice(span.pos, span.pos + span.length);
-      return span;
+      if (!span) return {
+          done: true
+        };
+      span.buf = buf.slice(span.pos, span.pos + span.length);
+      return {
+        done: false,
+        value: span
+      };
     }
 
     let lastEnc = null;
@@ -134,8 +119,9 @@ class EncodingSleuth {
     let span = null;
     let eof = false;
 
-    return () => {
-      if (eof) return null;
+    function nextSpan() {
+      if (eof) return addBuffer(null);
+
       while (true) {
         const lastPos = pos; // before fetch
         const tok = next();
@@ -164,18 +150,42 @@ class EncodingSleuth {
 
       eof = true;
       return addBuffer(span);
+    }
+
+    return {
+      next: nextSpan
     };
   }
+}
 
-  analyse(buf, cb) {
-    if (!_.isFunction(cb))
-      throw new Error("analyse needs a function");
-    const i = this.iterator(buf);
-    while (true) {
-      const span = i();
-      if (span === null) break;
-      cb(span);
-    }
+class EncodingSleuth {
+  constructor(opt) {
+    this.opt = Object.assign({}, {
+      maxUnknown: false,
+      maxChunk: false,
+      checkUTF8Illegal: true,
+      checkUTF8Replacement: true,
+      checkUTF8Specials: true,
+      checkUTF8MaxCodePoint: true,
+      checkUTF8NonCanonicalEncoding: true,
+      checkUTF8: true,
+    }, opt || {});
+
+    if (!(this.opt.checkUTF8Illegal
+      || this.opt.checkUTF8Replacement
+      || this.opt.checkUTF8Specials
+      || this.opt.checkUTF8MaxCodePoint
+      || this.opt.checkUTF8NonCanonicalEncoding))
+      this.opt.checkUTF8 = false;
+
+    if (this.opt.checkUTF8MaxCodePoint === true)
+      this.opt.checkUTF8MaxCodePoint = 0x110000;
+  }
+
+  iterator(buf) {
+    if (!Buffer.isBuffer(buf))
+      throw new Error("analyse needs a Buffer");
+    return new ESIterator(this.opt, buf);
   }
 }
 
