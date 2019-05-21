@@ -257,6 +257,8 @@ function checkAnalyse(es, ref, msg) {
     let got = [];
     es.analyse(Buffer.from(bytes), span => got.push(span));
 
+    //    console.log({want,got});
+
     expect(got).to.deep.equal(want, msg);
   });
 }

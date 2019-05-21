@@ -15,15 +15,20 @@ class EncodingSleuth {
       checkUTF8: true,
     }, opt || {});
 
+    if (!(this.opt.checkUTF8Illegal
+      || this.opt.checkUTF8Replacement
+      || this.opt.checkUTF8Specials
+      || this.opt.checkUTF8MaxCodePoint
+      || this.opt.checkUTF8NonCanonicalEncoding))
+      this.opt.checkUTF8 = false;
+
     if (this.opt.checkUTF8MaxCodePoint === true)
       this.opt.checkUTF8MaxCodePoint = 0x110000;
   }
 
-  analyse(buf, cb) {
+  iterator(buf) {
     if (!Buffer.isBuffer(buf))
       throw new Error("analyse needs a Buffer");
-    if (!_.isFunction(cb))
-      throw new Error("analyse needs a function");
 
     const opt = this.opt;
     const len = buf.length;
@@ -71,7 +76,7 @@ class EncodingSleuth {
           f.push("replacement");
         if (opt.checkUTF8MaxCodePoint !== false && cp >= opt.checkUTF8MaxCodePoint)
           f.push("above-max");
-        if (opt.checkUTF8NonCanonicalEncoding && cp < Math.max(0x80, 1 << (length * 5 - 4))) 
+        if (opt.checkUTF8NonCanonicalEncoding && cp < Math.max(0x80, 1 << (length * 5 - 4)))
           f.push("non-canonical");
         flags = f.join(" ");
       }
@@ -113,68 +118,65 @@ class EncodingSleuth {
       return {
         length: 1,
         cp: peek,
-        flags: "", 
+        flags: "",
         enc: "unknown"
       };
     }
 
-    function sendSpan(span) {
-      if (span) {
+    function addBuffer(span) {
+      if (span)
         span.buf = buf.slice(span.pos, span.pos + span.length);
-        cb(span);
-      }
+      return span;
     }
 
     let lastEnc = null;
     let lastFlags = null;
     let span = null;
+    let eof = false;
 
+    return () => {
+      if (eof) return null;
+      while (true) {
+        const lastPos = pos; // before fetch
+        const tok = next();
+        if (tok === false) break;
+
+        if (lastEnc !== null && lastEnc === tok.enc &&
+          lastFlags !== null && lastFlags === tok.flags) {
+          span.length += tok.length;
+          span.cp.push(tok.cp);
+          continue;
+        }
+
+        const oldSpan = span;
+
+        // new span
+        lastEnc = tok.enc;
+        lastFlags = tok.flags;
+
+        span = tok;
+        span.pos = lastPos;
+        span.cp = [span.cp];
+
+        if (oldSpan)
+          return addBuffer(oldSpan);
+      }
+
+      eof = true;
+      return addBuffer(span);
+    };
+  }
+
+  analyse(buf, cb) {
+    if (!_.isFunction(cb))
+      throw new Error("analyse needs a function");
+    const i = this.iterator(buf);
     while (true) {
-      const lastPos = pos; // before fetch
-      const tok = next();
-      if (tok === false) break;
-
-      if (lastEnc !== null && lastEnc === tok.enc &&
-        lastFlags !== null && lastFlags === tok.flags) {
-        span.length += tok.length;
-        span.cp.push(tok.cp);
-        continue;
-      }
-
-      sendSpan(span);
-
-      // new span
-      lastEnc = tok.enc;
-      lastFlags = tok.flags;
-      span = tok;
-      span.pos = lastPos;
-      span.cp = [span.cp];
-    }
-
-    sendSpan(span);
-
-  }
-
-  _makePushChunk(buf, chunks) {
-    let startPos = 0;
-    let lastPos = 0;
-    let lastTag = null;
-
-    return function(pos, tag) {
-      if (tag !== lastTag && startPos !== lastPos) {
-        // push pending chunk
-        chunks.push({
-          tag: lastTag,
-          buf: buf.slice(startPos, lastPos)
-        });
-        startPos = lastPos;
-      }
-
-      lastPos = pos;
-      lastTag = tag;
+      const span = i();
+      if (span === null) break;
+      cb(span);
     }
   }
-
 }
 
 module.exports = EncodingSleuth;
