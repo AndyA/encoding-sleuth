@@ -63,7 +63,7 @@ class ESIterator {
 
       const rv = {
         length,
-        cp,
+        cp: [cp],
         enc: "utf8",
         flags
       };
@@ -83,7 +83,7 @@ class ESIterator {
         pos++;
         return {
           length: 1,
-          cp: peek,
+          cp: [peek],
           enc: "7bit",
           flags: ""
         };
@@ -97,7 +97,7 @@ class ESIterator {
       pos++;
       return {
         length: 1,
-        cp: peek,
+        cp: [peek],
         flags: "",
         enc: "unknown"
       };
@@ -133,7 +133,7 @@ class ESIterator {
         if (lastEnc !== null && lastEnc === tok.enc &&
           lastFlags !== null && lastFlags === tok.flags) {
           span.length += tok.length;
-          span.cp.push(tok.cp);
+          Array.prototype.push.apply(span.cp, tok.cp);
           continue;
         }
 
@@ -145,7 +145,6 @@ class ESIterator {
 
         span = tok;
         span.pos = lastPos;
-        span.cp = [span.cp];
 
         if (oldSpan)
           return addBuffer(oldSpan);
