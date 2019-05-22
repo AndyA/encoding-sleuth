@@ -6,19 +6,15 @@ const Random = require("./lib/random");
 const TestData = require("./lib/testdata");
 const expect = require("chai").expect;
 
-function biasedRandom(pow) {
-  return Math.pow(Random.random(), pow);
-}
-
 function randomValid() {
   while (true) {
-    const cp = Math.floor(biasedRandom(3) * 0x110000);
+    const cp = Math.floor(Random.biasedRandom(3) * 0x110000);
     if (TestData.isValidUTF8(cp)) return cp;
   }
 }
 
 function random() {
-  return Math.floor(biasedRandom(6) * 0x80000000);
+  return Math.floor(Random.biasedRandom(6) * 0x80000000);
 }
 
 describe("encodeUTF8", () => {

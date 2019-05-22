@@ -49,8 +49,12 @@ class Random {
     this.seed(Math.random() * 4294967296);
   }
 
+  static biasedRandom(pow = 1) {
+    return Math.pow(this.random(), pow);
+  }
+
   random() {
-    return Math.pow(this.constructor.random(), this.opt.pow);
+    return this.constructor.biasedRandom(this.opt.pow);
   }
 
   randomBetween(low, high) {
