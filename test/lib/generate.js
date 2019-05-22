@@ -26,7 +26,7 @@ class Generate {
 
   static random7bit() {
     const r = new Random();
-    return RunRandom.singleton(() => {
+    return RunRandom.one(() => {
       const cp = r.randomBetween(0, 0x80);
       return {
         length: 1,
@@ -43,7 +43,7 @@ class Generate {
 
     const rr = this.randomUTF8();
 
-    return RunRandom.singleton(() => {
+    return RunRandom.one(() => {
       let span = rr.runOne();
       const bytes = Array.from(span.buf);
       bytes[0] = bytes[0] ^ 0x40;

@@ -42,7 +42,7 @@ class RunRandom {
       this.tw += a.weight;
   }
 
-  static singleton(f) {
+  static one(f) {
     return new RunRandom([f]);
   }
 
