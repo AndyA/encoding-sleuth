@@ -18,12 +18,14 @@ function random() {
 }
 
 describe("encodeUTF8", () => {
+  const encoder = new TextEncoder("utf8");
+
   for (let i = 0; i < 20; i++) {
     const cp = randomValid();
 
     it("should encode 0x" + cp.toString(16), () => {
-      const want = Array.from(Buffer.from(String.fromCodePoint(cp)));
-      const got = Array.from(encodeUTF8(cp));
+      const want = encoder.encode(String.fromCodePoint(cp));
+      const got = encodeUTF8(cp);
       expect(got).to.deep.equal(want);
     });
 
