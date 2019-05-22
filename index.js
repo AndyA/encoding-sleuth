@@ -79,6 +79,7 @@ class ESIterator {
 
       const peek = buf[pos];
 
+      // TODO gobble multiple characters here.
       if ((peek & 0x80) === 0) {
         pos++;
         return {
