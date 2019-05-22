@@ -2,6 +2,7 @@
 
 const assert = require("assert");
 const _ = require("lodash");
+const Random = require("./random");
 
 function getAlt(f) {
   if (_.isFunction(f)) return getAlt({
@@ -37,6 +38,9 @@ class RunRandom {
 
     this.alts = getAlts(alts);
     this.tw = 0;
+    this.rng = new Random({
+      pow: this.opt.pow
+    });
 
     for (let a of this.alts)
       this.tw += a.weight;
@@ -46,12 +50,8 @@ class RunRandom {
     return new RunRandom([f]);
   }
 
-  _random() {
-    return Math.pow(Math.random(), this.opt.pow) * this.tw;
-  }
-
   _pickOne() {
-    let r = this._random();
+    let r = this.rng.random() * this.tw;
     for (const a of this.alts) {
       if (a.weight >= r)
         return a;

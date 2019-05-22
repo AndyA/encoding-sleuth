@@ -1,7 +1,7 @@
 "use strict";
 
 const expect = require("chai").expect;
-const Generate = require("./lib/generate");
+const TestData = require("./lib/testdata");
 const _ = require("lodash");
 
 const EncodingSleuth = require("../");
@@ -13,10 +13,6 @@ const checkMap = {
   checkUTF8MaxCodePoint: "above-max",
   checkUTF8NonCanonicalEncoding: "non-canonical"
 };
-
-function parseFlags(flags) {
-  return flags.split(/\s+/).filter(x => x.length);
-}
 
 function mergeSpans(spans) {
   // Current span we're building
@@ -79,20 +75,10 @@ function checkSleuth(es, ref, msg) {
   });
 }
 
-function flagsSeen(want) {
-  let flags = new Set();
-  for (const ch of want) {
-    const flagNames = (ch.flags || "").split(/\s+/).filter(x => x.length);
-    for (const flag of flagNames)
-      flags.add(flag);
-  }
-  return flags;
-}
-
 function filterFlags(want, allow) {
   let out = [];
   for (const span of want) {
-    const flags = Generate.parseFlags(span.flags).filter(f => allow.has(f));
+    const flags = TestData.parseFlags(span.flags).filter(f => allow.has(f));
     out.push(Object.assign({}, span, {
       flags: flags.join(" ")
     }));
@@ -101,7 +87,7 @@ function filterFlags(want, allow) {
 }
 
 function testSleuth(want, msg) {
-  const flags = Array.from(flagsSeen(want)).sort();
+  const flags = Array.from(TestData.flagsSeen(want)).sort();
 
   if (0 === flags.length) {
     // no permutations
@@ -142,11 +128,11 @@ describe.only("EncodingSleuth", () => {
     });
 
     const len = 1000;
-    testSleuth(Generate.randToSpans(Generate.random7bit(), len), "7bit");
-    testSleuth(Generate.randToSpans(Generate.randomUTF8(), len), "utf8");
-    testSleuth(Generate.randToSpans(Generate.randomBad(), len), "bad");
-    testSleuth(Generate.randToSpans(Generate.randomCorruptUTF8(), len), "corrupt utf8");
-    testSleuth(Generate.randToSpans(Generate.randomAnything(), len), "a mixture");
+    testSleuth(TestData.randToSpans(TestData.random7bit(), len), "7bit");
+    testSleuth(TestData.randToSpans(TestData.randomUTF8(), len), "utf8");
+    testSleuth(TestData.randToSpans(TestData.randomBad(), len), "bad");
+    testSleuth(TestData.randToSpans(TestData.randomCorruptUTF8(), len), "corrupt utf8");
+    testSleuth(TestData.randToSpans(TestData.randomAnything(), len), "a mixture");
 
   });
 
