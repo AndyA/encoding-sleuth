@@ -51,7 +51,9 @@ function testSleuth(want, msg) {
     const es = new EncodingSleuth(opt);
     checkSleuth(es, test, msg + desc);
   }
+}
 
+function slidingTest() {
 
 }
 

@@ -38,11 +38,11 @@ class Random {
     if (rd === undefined)
       rd = (rc ^ -1) >>> 0;
 
-    this.rawRandom = this.sfc32(ra, rb, rc, rd);
+    this.random = this.sfc32(ra, rb, rc, rd);
 
     // Warm it up
     for (let i = 0; i < 20; i++)
-      this.rawRandom();
+      this.random();
   }
 
   static randomise() {
@@ -50,7 +50,7 @@ class Random {
   }
 
   random() {
-    return Math.pow(this.constructor.rawRandom(), this.opt.pow);
+    return Math.pow(this.constructor.random(), this.opt.pow);
   }
 
   randomBetween(low, high) {
