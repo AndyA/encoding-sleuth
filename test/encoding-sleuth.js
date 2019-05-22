@@ -31,16 +31,17 @@ function mergeSpans(spans) {
   function mergeSpan(a, b) {
     let cp = a.cp.slice(0);
     Array.prototype.push.apply(cp, b.cp);
-    let buf = Buffer.alloc(a.length + b.length);
-    a.buf.copy(buf, 0);
-    b.buf.copy(buf, a.length);
+
+    let buf = Array.from(a.buf);
+    Array.prototype.push.apply(buf, b.buf);
+
     return {
       enc: a.enc,
       flags: a.flags,
       length: a.length + b.length,
       pos: a.pos,
       cp,
-      buf,
+      buf: Uint8Array.from(buf)
     }
   }
 
@@ -48,7 +49,7 @@ function mergeSpans(spans) {
     return mergeSpan(span, {
       length: 0,
       cp: [],
-      buf: Buffer.from([])
+      buf: Uint8Array.from([])
     });
   }
 
@@ -78,7 +79,7 @@ function checkSleuth(es, ref, msg) {
     for (const ch of want)
       Array.prototype.push.apply(bytes, ch.buf);
 
-    const got = Array.from(es.analyse(Buffer.from(bytes)));
+    const got = Array.from(es.analyse(Uint8Array.from(bytes)));
 
     //    console.log({ want, got });
 

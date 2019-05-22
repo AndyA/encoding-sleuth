@@ -33,7 +33,7 @@ class Generate {
         flags: "",
         enc: "7bit",
         cp: [cp],
-        buf: Buffer.from([cp])
+        buf: Uint8Array.from([cp])
       }
     });
   }
@@ -53,7 +53,7 @@ class Generate {
         flags: "",
         enc: "unknown",
         cp: bytes,
-        buf: Buffer.from(bytes)
+        buf: Uint8Array.from(bytes)
       };
     });
   }
@@ -65,7 +65,7 @@ class Generate {
         flags: "",
         enc: "unknown",
         cp: [cp],
-        buf: Buffer.from([cp]),
+        buf: Uint8Array.from([cp]),
       };
     }
 
