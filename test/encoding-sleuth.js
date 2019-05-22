@@ -145,7 +145,7 @@ describe.only("EncodingSleuth", () => {
 
     it("should throw on bad input", () => {
       const es = new EncodingSleuth();
-      expect(() => es.analyse("Hello")).to.throw(/needs a Buffer/i);
+      expect(() => es.analyse("Hello")).to.throw(/needs a Uint8Array/i);
     });
 
     const len = 1000;

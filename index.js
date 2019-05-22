@@ -106,7 +106,7 @@ class ESIterator {
 
     function addBuffer(span) {
       if (span) {
-        span.buf = buf.slice(span.pos, span.pos + span.length);
+        span.buf = buf.subarray(span.pos, span.pos + span.length);
         return {
           done: false,
           value: span
@@ -184,8 +184,8 @@ class EncodingSleuth {
   }
 
   analyse(buf) {
-    if (!Buffer.isBuffer(buf))
-      throw new Error("analyse needs a Buffer");
+    if (!(buf instanceof Uint8Array))
+      throw new Error("analyse needs a Uint8Array (or a Buffer)");
     return new ESIterator(this.opt, buf);
   }
 }
