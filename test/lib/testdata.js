@@ -197,6 +197,63 @@ class TestData {
     }
     return flags;
   }
+
+  static mergeSpans(spans) {
+    // Current span we're building
+    let pos = 0;
+    let length = 0;
+    let cp = [];
+    let buf = [];
+
+    let lastEnc = null;
+    let lastFlags = null;
+
+    let out = [];
+
+    function flushSpan() {
+      if (lastEnc === null)
+        return;
+
+      out.push({
+        enc: lastEnc,
+        flags: lastFlags,
+        pos,
+        length,
+        cp,
+        buf: Uint8Array.from(buf)
+      });
+
+      pos += length;
+      length = 0;
+      cp = [];
+      buf = [];
+    }
+
+    for (const span of spans) {
+      if (lastEnc !== null && lastEnc !== span.enc && lastFlags !== span.flags) {
+        flushSpan();
+        lastEnc = span.enc;
+        lastFlags = span.flags;
+      }
+
+      Array.prototype.push.apply(cp, span.cp);
+      Array.prototype.push.apply(buf, span.buf);
+      length += span.length;
+    }
+    flushSpan();
+    return out;
+  }
+
+  static filterFlags(want, allow) {
+    let out = [];
+    for (const span of want) {
+      const flags = TestData.parseFlags(span.flags).filter(f => allow.has(f));
+      out.push(Object.assign({}, span, {
+        flags: flags.join(" ")
+      }));
+    }
+    return out;
+  }
 }
 
 module.exports = TestData;

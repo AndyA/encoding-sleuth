@@ -14,55 +14,9 @@ const checkMap = {
   checkUTF8NonCanonicalEncoding: "non-canonical"
 };
 
-function mergeSpans(spans) {
-  // Current span we're building
-  let pos = 0;
-  let length = 0;
-  let cp = [];
-  let buf = [];
-
-  let lastEnc = null;
-  let lastFlags = null;
-
-  let out = [];
-
-  function flushSpan() {
-    if (lastEnc === null)
-      return;
-
-    out.push({
-      enc: lastEnc,
-      flags: lastFlags,
-      pos,
-      length,
-      cp,
-      buf: Uint8Array.from(buf)
-    });
-
-    pos += length;
-    length = 0;
-    cp = [];
-    buf = [];
-  }
-
-  for (const span of spans) {
-    if (lastEnc !== null && lastEnc !== span.enc && lastFlags !== span.flags) {
-      flushSpan();
-      lastEnc = span.enc;
-      lastFlags = span.flags;
-    }
-
-    Array.prototype.push.apply(cp, span.cp);
-    Array.prototype.push.apply(buf, span.buf);
-    length += span.length;
-  }
-  flushSpan();
-  return out;
-}
-
 function checkSleuth(es, ref, msg) {
   it("should handle " + msg, () => {
-    const want = mergeSpans(ref);
+    const want = TestData.mergeSpans(ref);
     let bytes = [];
     for (const ch of want)
       Array.prototype.push.apply(bytes, ch.buf);
@@ -73,17 +27,6 @@ function checkSleuth(es, ref, msg) {
 
     expect(got).to.deep.equal(want, msg);
   });
-}
-
-function filterFlags(want, allow) {
-  let out = [];
-  for (const span of want) {
-    const flags = TestData.parseFlags(span.flags).filter(f => allow.has(f));
-    out.push(Object.assign({}, span, {
-      flags: flags.join(" ")
-    }));
-  }
-  return out;
 }
 
 function testSleuth(want, msg) {
@@ -111,7 +54,7 @@ function testSleuth(want, msg) {
     const allowed = Array.from(allow);
     if (!allowed.length) allowed.push("none");
     const desc = " (flags: " + allowed.join(", ") + ")";
-    const test = filterFlags(want, allow);
+    const test = TestData.filterFlags(want, allow);
     const es = new EncodingSleuth(opt);
     checkSleuth(es, test, msg + desc);
   }
