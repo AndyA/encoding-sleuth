@@ -1,0 +1,5 @@
+7bit x 655 ops/sec ±0.52% (91 runs sampled)
+UTF8 x 28.45 ops/sec ±1.41% (50 runs sampled)
+Bad x 199 ops/sec ±0.53% (83 runs sampled)
+CorruptUTF8 x 53.46 ops/sec ±0.82% (69 runs sampled)
+Anything x 23.42 ops/sec ±1.86% (43 runs sampled)

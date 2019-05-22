@@ -77,14 +77,23 @@ class ESIterator {
       if (pos === len)
         return false;
 
-      const peek = buf[pos];
+      let peek = buf[pos];
 
-      // TODO gobble multiple characters here.
       if ((peek & 0x80) === 0) {
+        let cp = [peek];
+        const start = pos;
         pos++;
+
+        while (pos < len - 1) {
+          peek = buf[pos];
+          if (peek & 0x80) break;
+          cp.push(peek);
+          pos++;
+        }
+
         return {
-          length: 1,
-          cp: [peek],
+          length: pos - start,
+          cp,
           enc: "7bit",
           flags: ""
         };
