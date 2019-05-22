@@ -30,13 +30,13 @@ class Random {
 
   static seed(ra, rb, rc, rd) {
     if (ra === undefined)
-      ra = 0;
+      ra = 0x181e9665;
     if (rb === undefined)
       rb = (ra ^ -1) >>> 0;
     if (rc === undefined)
-      rc = (ra ^ rb) >>> 0;
+      rc = (rb ^ -1) >>> 0;
     if (rd === undefined)
-      rd = rc;
+      rd = (rc ^ -1) >>> 0;
 
     this.rawRandom = this.sfc32(ra, rb, rc, rd);
 
