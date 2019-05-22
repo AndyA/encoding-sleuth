@@ -1,8 +1,10 @@
 "use strict";
 
+const Random = require("./random");
+
 class CodePoint {
   static biasedRandom(pow) {
-    return Math.pow(Math.random(), pow);
+    return Math.pow(Random.rawRandom(), pow);
   }
 
   static isValid(cp) {
