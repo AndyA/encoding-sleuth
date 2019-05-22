@@ -8,7 +8,9 @@
    },
    "description" : "Scan a buffer for 7-bit safe, utf8 and non-utf8 >= 0x80 bytes returning a list of tagged spans",
    "devDependencies" : {
+      "benchmark" : "^2.1.4",
       "chai" : "^4.2.0",
+      "microtime" : "^3.0.0",
       "mocha" : "^6.1.4"
    },
    "homepage" : "https://github.com/AndyA/encoding-sleuth#readme",
