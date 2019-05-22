@@ -5,10 +5,12 @@ dir="bm"
 
 mkdir -p "$dir"
 
-log="$dir/$host.$( date -u +'%Y%m%d-%H%M%S' ).txt"
+name="$host.$( date -u +'%Y%m%d-%H%M%S' )"
+log="$dir/$name.txt"
 
 echo "Writing $log"
-node scripts/benchmark.js | tee "$log"
+echo "=== $name ===" > $log
+node scripts/benchmark.js | tee -a "$log"
 
 # vim:ts=2:sw=2:sts=2:et:ft=sh
 
