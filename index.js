@@ -131,8 +131,7 @@ class ESIterator {
         const tok = next();
         if (tok === false) break;
 
-        if (lastEnc !== null && lastEnc === tok.enc &&
-          lastFlags !== null && lastFlags === tok.flags) {
+        if (lastEnc === tok.enc && lastFlags === tok.flags) {
           span.length += tok.length;
           Array.prototype.push.apply(span.cp, tok.cp);
           continue;
