@@ -6,8 +6,6 @@ const RunRandom = require("./lib/runrandom");
 const Generate = require("./lib/generate");
 const _ = require("lodash");
 
-console.log(Generate);
-
 const EncodingSleuth = require("../");
 
 const checkMap = {
