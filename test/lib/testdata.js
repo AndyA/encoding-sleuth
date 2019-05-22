@@ -101,12 +101,10 @@ class TestData {
       };
     }
 
-    function legalCP(max) {
+    const legalCP = () => {
       while (true) {
-        const cp = r.randomBetween(0x80, max);
-        if (cp >= 0xd800 && cp < 0xe000) continue;
-        if (cp >= 0xfff0 && cp < 0x10000) continue;
-        return cp;
+        const cp = r.randomBetween(0x80, 0x110000);
+        if (this.isValidUTF8(cp)) return cp;
       }
     }
 
@@ -118,7 +116,7 @@ class TestData {
       {
         weight: 10,
         f: () => {
-          return makeSpan(legalCP(0x110000));
+          return makeSpan(legalCP());
         }
       }, {
         weight: 1,
