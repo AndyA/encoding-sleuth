@@ -5,7 +5,7 @@ const Random = require("./random");
 const RunRandom = require("./runrandom");
 const _ = require("lodash");
 
-class Generate {
+class TestData {
 
   static parseFlags(flags) {
     return flags.split(/\s+/).filter(x => x.length);
@@ -188,6 +188,15 @@ class Generate {
     return spans;
   }
 
+  static flagsSeen(want) {
+    let flags = new Set();
+    for (const ch of want) {
+      const flagNames = (ch.flags || "").split(/\s+/).filter(x => x.length);
+      for (const flag of flagNames)
+        flags.add(flag);
+    }
+    return flags;
+  }
 }
 
-module.exports = Generate;
+module.exports = TestData;
