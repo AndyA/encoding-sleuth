@@ -6,7 +6,7 @@
    "dependencies" : {
       "lodash" : "^4.17.11"
    },
-   "description" : "Scan a buffer for 7-bit safe, utf8 and non-utf8 >= 0x80 bytes returning a list of tagged Buffers",
+   "description" : "Scan a buffer for 7-bit safe, utf8 and non-utf8 >= 0x80 bytes returning a list of tagged spans",
    "devDependencies" : {
       "chai" : "^4.2.0",
       "mocha" : "^6.1.4"
