@@ -22,7 +22,7 @@ describe("encodeUTF8", () => {
     const cp = randomValid();
 
     it("should encode 0x" + cp.toString(16), () => {
-      const want = Array.from(Uint8Array.from(String.fromCodePoint(cp)));
+      const want = Array.from(Buffer.from(String.fromCodePoint(cp)));
       const got = Array.from(encodeUTF8(cp));
       expect(got).to.deep.equal(want);
     });

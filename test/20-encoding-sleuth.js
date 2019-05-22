@@ -58,7 +58,7 @@ function slidingTest() {
 
 }
 
-describe.only("EncodingSleuth", () => {
+describe("EncodingSleuth", () => {
   describe("analyse", () => {
 
     it("should throw on bad input", () => {
