@@ -180,11 +180,10 @@ class TestData {
     ]);
   }
 
-  static randToSpans(rr, len) {
+  static generateSpans(rr, len) {
     let spans = [];
-    for (let i = 0; i < len; i++) {
+    for (let i = 0; i < len; i++)
       spans.push(rr.runOne());
-    }
     return spans;
   }
 
@@ -196,6 +195,17 @@ class TestData {
         flags.add(flag);
     }
     return flags;
+  }
+
+  static filterFlags(want, allow) {
+    let out = [];
+    for (const span of want) {
+      const flags = TestData.parseFlags(span.flags).filter(f => allow.has(f));
+      out.push(Object.assign({}, span, {
+        flags: flags.join(" ")
+      }));
+    }
+    return out;
   }
 
   static mergeSpans(spans) {
@@ -244,15 +254,11 @@ class TestData {
     return out;
   }
 
-  static filterFlags(want, allow) {
-    let out = [];
-    for (const span of want) {
-      const flags = TestData.parseFlags(span.flags).filter(f => allow.has(f));
-      out.push(Object.assign({}, span, {
-        flags: flags.join(" ")
-      }));
-    }
-    return out;
+  static gatherSpans(spans) {
+    let bytes = [];
+    for (const ch of spans)
+      Array.prototype.push.apply(bytes, ch.buf);
+    return Uint8Array.from(bytes);
   }
 }
 

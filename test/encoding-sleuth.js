@@ -17,14 +17,7 @@ const checkMap = {
 function checkSleuth(es, ref, msg) {
   it("should handle " + msg, () => {
     const want = TestData.mergeSpans(ref);
-    let bytes = [];
-    for (const ch of want)
-      Array.prototype.push.apply(bytes, ch.buf);
-
-    const got = Array.from(es.analyse(Uint8Array.from(bytes)));
-
-    //    console.log({ want, got });
-
+    const got = Array.from(es.analyse(TestData.gatherSpans(want)));
     expect(got).to.deep.equal(want, msg);
   });
 }
@@ -71,11 +64,11 @@ describe.only("EncodingSleuth", () => {
     });
 
     const len = 1000;
-    testSleuth(TestData.randToSpans(TestData.random7bit(), len), "7bit");
-    testSleuth(TestData.randToSpans(TestData.randomUTF8(), len), "utf8");
-    testSleuth(TestData.randToSpans(TestData.randomBad(), len), "bad");
-    testSleuth(TestData.randToSpans(TestData.randomCorruptUTF8(), len), "corrupt utf8");
-    testSleuth(TestData.randToSpans(TestData.randomAnything(), len), "a mixture");
+    testSleuth(TestData.generateSpans(TestData.random7bit(), len), "7bit");
+    testSleuth(TestData.generateSpans(TestData.randomUTF8(), len), "utf8");
+    testSleuth(TestData.generateSpans(TestData.randomBad(), len), "bad");
+    testSleuth(TestData.generateSpans(TestData.randomCorruptUTF8(), len), "corrupt utf8");
+    testSleuth(TestData.generateSpans(TestData.randomAnything(), len), "a mixture");
 
   });
 
