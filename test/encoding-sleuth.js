@@ -21,54 +21,50 @@ function parseFlags(flags) {
 }
 
 function mergeSpans(spans) {
-  let out = [];
+  // Current span we're building
+  let pos = 0;
+  let length = 0;
+  let cp = [];
+  let buf = [];
+
   let lastEnc = null;
   let lastFlags = null;
-  let pos = 0;
 
-  function mergeSpan(a, b) {
-    let cp = a.cp.slice(0);
-    Array.prototype.push.apply(cp, b.cp);
+  let out = [];
 
-    let buf = Array.from(a.buf);
-    Array.prototype.push.apply(buf, b.buf);
+  function flushSpan() {
+    if (lastEnc === null)
+      return;
 
-    return {
-      enc: a.enc,
-      flags: a.flags,
-      length: a.length + b.length,
-      pos: a.pos,
+    out.push({
+      enc: lastEnc,
+      flags: lastFlags,
+      pos,
+      length,
       cp,
       buf: Uint8Array.from(buf)
-    }
-  }
-
-  function cloneSpan(span) {
-    return mergeSpan(span, {
-      length: 0,
-      cp: [],
-      buf: Uint8Array.from([])
     });
+
+    pos += length;
+    length = 0;
+    cp = [];
+    buf = [];
   }
 
   for (const span of spans) {
-    if (lastEnc === null || lastEnc !== span.enc
-      || lastFlags === null || lastFlags !== span.flags) {
-      let newSpan = cloneSpan(span);
-      newSpan.pos = pos;
-      pos += span.length;
-      out.push(newSpan);
+    if (lastEnc !== null && lastEnc !== span.enc && lastFlags !== span.flags) {
+      flushSpan();
       lastEnc = span.enc;
       lastFlags = span.flags;
-      continue;
     }
 
-    pos += span.length;
-    out.push(mergeSpan(out.pop(), span));
+    Array.prototype.push.apply(cp, span.cp);
+    Array.prototype.push.apply(buf, span.buf);
+    length += span.length;
   }
+  flushSpan();
   return out;
 }
-
 
 function checkSleuth(es, ref, msg) {
   it("should handle " + msg, () => {
