@@ -18,6 +18,7 @@ function checkSleuth(es, ref, msg) {
   it("should handle " + msg, () => {
     const want = TestData.mergeSpans(ref);
     const got = Array.from(es.analyse(TestData.gatherSpans(want)));
+    expect(want.length > 0).to.be.true;
     expect(got).to.deep.equal(want, msg);
   });
 }

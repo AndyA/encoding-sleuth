@@ -245,7 +245,7 @@ class TestData {
     }
 
     for (const span of spans) {
-      if (lastEnc !== null && lastEnc !== span.enc && lastFlags !== span.flags) {
+      if (lastEnc !== span.enc || lastFlags !== span.flags) {
         flushSpan();
         lastEnc = span.enc;
         lastFlags = span.flags;
