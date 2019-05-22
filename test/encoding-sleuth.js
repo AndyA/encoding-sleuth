@@ -1,8 +1,6 @@
 "use strict";
 
 const expect = require("chai").expect;
-const Random = require("./lib/random");
-const RunRandom = require("./lib/runrandom");
 const Generate = require("./lib/generate");
 const _ = require("lodash");
 
