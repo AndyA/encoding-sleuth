@@ -28,10 +28,10 @@ for (const span of es.analyse(mystery)) {
 
 ## Overview
 
-encoding-sleuth parses a `Uint8Array` (or node `Buffer`) of bytes and breaks that text into spans that contain
+encoding-sleuth parses a `Uint8Array` (or node `Buffer`) of bytes and splits them into spans that contain
 
 * 7-bit clean bytes (0x00 - 0x7f) which encode identically in both UTF8 and ASCII
-* bytes that contain a correctly encoded UTF8 character
+* bytes that contain correctly encoded UTF8 characters
 * bytes that can't be interpreted as either of the above
 
 It can be used to
@@ -72,6 +72,8 @@ Each option enables a check that is performed on every decoded UTF8 code point:
 * `checkUTF8NonCanonicalEncoding`: flag unnecessary long encodings as 'non-canonical'
 * `checkUTF8`: set `false` to disable all UTF8 checks.
 
+By default all checks are enabled.
+
 Having created a `EncodingSleuth` instance use it to analyse some bytes:
 
 ```javascript
@@ -101,22 +103,25 @@ Each span is an object like this:
 
 ```javascript
 {
-  enc: "utf8",    // or "7bit", "unknown"
-  pos: 0,         // offset of this span in original array
+  enc: "utf8",    // "utf8", "7bit" or "unknown"
+  pos: 0,         // offset of this span in original byte array
   length: 18,     // length in bytes of this span
-  flags: "",      // see below
+  flags: "",      // utf8 only, see below
   f: {},          // object version of flags: true for each set flag
   cp: [...],      // array of decoded code points in this span
   buf: Uint8Array // portion of the buffer subtended by this span
+}
 ```
 
-A span describes a run of bytes. Each span has a `pos` where it starts in the original bytes, a `length` indicating how many bytes it covers and a `buf` containing the actual bytes for this span.
+A span describes a run of bytes. Each span has a `pos` where it starts in the original bytes, a `length` indicating how many bytes it covers and a `buf` containing the actual bytes for this span. The returned spans don't overlap; joining their `buf` fields would yield the original input.
 
 The `enc` field describes the encoding of this span of bytes:
 
 * `7bit`: a run of bytes between 0x00 and 0x7F inclusive
 * `utf8`: a run of syntactically valid UTF8 encodings
 * `unknown`: any bytes that are neither `7bit` or `utf8`
+
+For `utf8` the `cp` array contains a list of decoded UTF8 code points. For `7bit` or `unknown` it contains the byte values within this span.
 
 Syntactically valid UTF8 takes one of the following forms
 
@@ -133,15 +138,19 @@ used  enc
 
 The single byte form (0x00 - 0x7F) is 7 bit safe, synonymous with ASCII and is identified as `7bit`.
 
-The other forms allow any code point between 0x80 an 0x7fffffff to be encoded.
+The other forms are identiedied as 'utf8' and allow any code point between 0x80 an 0x7fffffff to be encoded.
+
+### flags
 
 The `flags` and `f` fields are only interesting for UTF8 sequences. With all checks enabled (see constructor above) the following flags will be set for each utf8 span:
 
-* flag code points between 0xd800 and 0xdfff as '`illegal`'
-* flag the UTF8 replacement character (xfffd) as '`replacement`'
+* flag code points between 0xd800 and 0xdfff as '`illegal`'; these are surrogates that shouldn't appear in valid utf8
+* flag the UTF8 replacement character (xfffd) as '`replacement`'; often used to represent invalid characters
 * flag code points between 0xfff0 and 0xffff as '`special`'
 * flag the UTF8 BOM (0xfeff) as '`bom`'
 * flag code points >= 0x110000 as '`above-max`'
 * flag unnecessary long encodings as '`non-canonical`'
 
-During parsing by `analyse` a new span is returned each time the `enc` or `flags` fields change; runs of bytes with the same encoding are returned as a single span. There's a very slight speed up from turning off tests that you're not interested in but the main reason to do that is to simplify processing of the returned spans. Generally it's fine to use the defaults.
+During parsing by `analyse` a new span is returned each time the `enc` or `flags` fields change; runs of bytes with the same encoding are returned as a single span. There's a very slight speed-up from turning off tests that you're not interested in but the main reason to disable checks is to simplify processing of the returned spans. Generally it's fine to use the defaults.
+
+`non-canonical` UTF8 sequences are syntactically valid UTF8 that use more bytes than necessary to encode a particular code point. For example any code point between 0x00 and 0x80000000 can be encoded using the 6 byte form but, in practice, valid UTF8 will use the shortest possible encoding so `non-canonical` may indicate that the bytes being analysed are not "normal" UTF8.
