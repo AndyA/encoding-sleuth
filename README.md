@@ -144,7 +144,7 @@ Syntactically valid UTF8 takes one of the following forms:
 The single byte form (0x00 - 0x7F) is 7 bit safe, synonymous with ASCII
 and is identified as `7bit`.
 
-The other forms are identified as 'utf8' and allow any code point
+The other forms are identified as `utf8` and allow any code point
 between 0x80 an 0x7fffffff to be encoded.
 
 ### flags
@@ -162,12 +162,12 @@ set for each utf8 span:
 * flag code points >= 0x110000 as '`above-max`'
 * flag unnecessary long encodings as '`non-canonical`'
 
-During parsing by `analyse` a new span is returned each time the `enc`
-or `flags` fields change; runs of bytes with the same encoding are
-returned as a single span. There's a very slight speed-up from turning
-off tests that you're not interested in but the main reason to disable
-checks is to simplify processing of the returned spans. Generally it's
-fine to use the defaults.
+During parsing by `analyse` a new span is returned each time the
+`enc` or `flags` fields change; runs of bytes with the same encoding and
+flags are returned as a single span. There's a very slight speed-up from
+turning off tests that you're not interested in but the main reason to
+disable checks is to simplify processing of the returned spans.
+Generally it's fine to use the defaults.
 
 `non-canonical` UTF8 sequences are syntactically valid UTF8 that use
 more bytes than necessary to encode a particular code point. For example
@@ -175,4 +175,3 @@ any code point between 0x00 and 0x80000000 can be encoded using the 6
 byte form but, in practice, valid UTF8 will use the shortest possible
 encoding so `non-canonical` may indicate that the bytes being analysed
 are not "normal" UTF8.
-
