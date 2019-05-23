@@ -123,17 +123,19 @@ The `enc` field describes the encoding of this span of bytes:
 
 For `utf8` the `cp` array contains a list of decoded UTF8 code points. For `7bit` or `unknown` it contains the byte values within this span.
 
+### UTF8
+
 Syntactically valid UTF8 takes one of the following forms
 
 ```
-bytes bits   min      max
-used  enc
-1      7     00000000 0000007f 0xxxxxxx
-2     11     00000080 000007FF 110xxxxx  10xxxxxx
-3     16     00000800 0000FFFF 1110xxxx  10xxxxxx  10xxxxxx
-4     21     00010000 001FFFFF 11110xxx  10xxxxxx  10xxxxxx  10xxxxxx
-5     26     00200000 03FFFFFF 111110xx  10xxxxxx  10xxxxxx  10xxxxxx  10xxxxxx
-6     31     04000000 7FFFFFFF 1111110x  10xxxxxx  10xxxxxx  10xxxxxx  10xxxxxx  10xxxxxx
+bytes bits   min        max        representation
+used  enc    (hex)      (hex)      (binary)
+1      7     00000000   0000007f   0xxxxxxx
+2     11     00000080   000007FF   110xxxxx  10xxxxxx
+3     16     00000800   0000FFFF   1110xxxx  10xxxxxx  10xxxxxx
+4     21     00010000   001FFFFF   11110xxx  10xxxxxx  10xxxxxx  10xxxxxx
+5     26     00200000   03FFFFFF   111110xx  10xxxxxx  10xxxxxx  10xxxxxx  10xxxxxx
+6     31     04000000   7FFFFFFF   1111110x  10xxxxxx  10xxxxxx  10xxxxxx  10xxxxxx  10xxxxxx
 ```
 
 The single byte form (0x00 - 0x7F) is 7 bit safe, synonymous with ASCII and is identified as `7bit`.
