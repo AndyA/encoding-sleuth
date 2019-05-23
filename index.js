@@ -131,7 +131,7 @@ class ESIterator {
     function addBuffer(span) {
       if (span) {
         span.buf = buf.subarray(span.pos, span.pos + span.length);
-        span.oflags = flagsToObject(span.flags);
+        span.f = flagsToObject(span.flags);
         return {
           done: false,
           value: span

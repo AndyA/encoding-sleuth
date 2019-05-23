@@ -252,7 +252,7 @@ class TestData {
       out.push({
         enc: lastEnc,
         flags: lastFlags,
-        oflags: this.flagsToObject(lastFlags),
+        f: this.flagsToObject(lastFlags),
         pos,
         length,
         cp,
