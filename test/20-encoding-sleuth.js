@@ -9,6 +9,7 @@ const EncodingSleuth = require("../");
 const checkMap = {
   checkUTF8Illegal: "illegal",
   checkUTF8Specials: "special",
+  checkUTF8Bom: "bom",
   checkUTF8Replacement: "replacement",
   checkUTF8MaxCodePoint: "above-max",
   checkUTF8NonCanonicalEncoding: "non-canonical"

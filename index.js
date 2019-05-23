@@ -52,6 +52,8 @@ class ESIterator {
           f.push("illegal");
         if (opt.checkUTF8Specials && cp >= 0xfff0 && cp < 0x10000)
           f.push("special");
+        if (opt.checkUTF8Bom && cp === 0xfeff)
+          f.push("bom");
         if (opt.checkUTF8Replacement && cp === 0xfffd)
           f.push("replacement");
         if (opt.checkUTF8MaxCodePoint !== false && cp >= opt.checkUTF8MaxCodePoint)
@@ -175,6 +177,7 @@ class EncodingSleuth {
       checkUTF8Illegal: true,
       checkUTF8Replacement: true,
       checkUTF8Specials: true,
+      checkUTF8Bom: true,
       checkUTF8MaxCodePoint: true,
       checkUTF8NonCanonicalEncoding: true,
       checkUTF8: true,
@@ -183,6 +186,7 @@ class EncodingSleuth {
     if (!(this.opt.checkUTF8Illegal
       || this.opt.checkUTF8Replacement
       || this.opt.checkUTF8Specials
+      || this.opt.checkUTF8Bom
       || this.opt.checkUTF8MaxCodePoint
       || this.opt.checkUTF8NonCanonicalEncoding))
       this.opt.checkUTF8 = false;

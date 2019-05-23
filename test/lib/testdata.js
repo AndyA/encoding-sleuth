@@ -133,6 +133,11 @@ class TestData {
         f: () => {
           return makeSpan(0xfffd, "special replacement");
         }
+      }, {
+        weight: 1,
+        f: () => {
+          return makeSpan(0xfeff, "bom");
+        }
       }]);
 
     // Sometimes non-canonicalise a char.
