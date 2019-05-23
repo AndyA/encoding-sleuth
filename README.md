@@ -1,6 +1,6 @@
 # encoding-sleuth
 
-Rigorously analyse an array of bytes into spans of
+Analyse an array of bytes into spans of
 
 * 7-bit clean (ASCII)
 * UTF8 (with validity checks)
@@ -28,7 +28,7 @@ for (const span of es.analyse(mystery)) {
 
 ## Overview
 
-encoding-sleuth parses a `Uint8Array` (or node `Buffer`) of bytes and splits them into spans that contain
+encoding-sleuth parses a `Uint8Array` (or node `Buffer`) of bytes and splits them into spans that contain runs of
 
 * 7-bit clean bytes (0x00 - 0x7f) which encode identically in both UTF8 and ASCII
 * bytes that contain correctly encoded UTF8 characters
@@ -74,7 +74,7 @@ Each option enables a check that is performed on every decoded UTF8 code point:
 
 By default all checks are enabled.
 
-Having created a `EncodingSleuth` instance use it to analyse some bytes:
+Having created an `EncodingSleuth` instance use it to analyse some bytes:
 
 ```javascript
 const es = new EncodingSleuth();
@@ -113,11 +113,11 @@ Each span is an object like this:
 }
 ```
 
-A span describes a run of bytes. Each span has a `pos` where it starts
-in the original bytes, a `length` indicating how many bytes it covers
+A span describes a contious run of bytes. Each span has a `pos` where it
+starts in the original bytes, a `length` indicating how many bytes it covers
 and a `buf` containing the actual bytes for this span. The returned
-spans don't overlap; joining their `buf` fields would yield the
-original input.
+spans are contiguous and don't overlap; joining their `buf` fields would
+yield the original input.
 
 The `enc` field describes the encoding of this span of bytes:
 
@@ -144,14 +144,14 @@ Syntactically valid UTF8 takes one of the following forms:
 The single byte form (0x00 - 0x7F) is 7 bit safe, synonymous with ASCII
 and is identified as `7bit`.
 
-The other forms are identified as `utf8` and allow any code point
-between 0x80 an 0x7fffffff to be encoded.
+The other forms are identified by `EncodingSleuth` as `utf8`. They allow any
+code point between 0x80 an 0x7fffffff to be encoded.
 
-### flags
+### span flags
 
-The `flags` and `f` fields are only populated for UTF8 sequences. With
-all checks enabled (see constructor above) the following flags will be
-set for each utf8 span:
+Each span has `flags` and `f` fields but they are only populated for `utf8`
+sequences. With all checks enabled (see constructor above) the following
+flags may be set for each `utf8` span:
 
 * flag code points between 0xd800 and 0xdfff as '`illegal`'; these are
   surrogates that shouldn't appear in valid utf8
@@ -162,16 +162,20 @@ set for each utf8 span:
 * flag code points >= 0x110000 as '`above-max`'
 * flag unnecessary long encodings as '`non-canonical`'
 
-During parsing by `analyse` a new span is returned each time the
-`enc` or `flags` fields change; runs of bytes with the same encoding and
-flags are returned as a single span. There's a very slight speed-up from
-turning off tests that you're not interested in but the main reason to
-disable checks is to simplify processing of the returned spans.
-Generally it's fine to use the defaults.
+Generally speaking the presence of any of these flags is likely to indicate
+a problem with the input data; the precise interpretation depends on your
+use case.
 
 `non-canonical` UTF8 sequences are syntactically valid UTF8 that use
-more bytes than necessary to encode a particular code point. For example
-any code point between 0x00 and 0x80000000 can be encoded using the 6
+more bytes than necessary to encode a particular code point.
+Any code point between 0x00 and 0x80000000 can be encoded using the 6
 byte form but, in practice, valid UTF8 will use the shortest possible
 encoding so `non-canonical` may indicate that the bytes being analysed
 are not "normal" UTF8.
+
+During parsing by `analyse` a new span is returned each time the
+`enc` or `flags` fields change; runs of bytes with the same encoding and
+flags are merged and returned as a single span. There's a very slight speed-up
+from turning off tests that you're not interested in but the main reason to
+disable checks is to simplify processing of the returned spans.
+Generally it's fine to use the defaults.
