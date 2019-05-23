@@ -64,12 +64,12 @@ const es = new EncodingSleuth(options);
 
 Each option enables a check that is performed on every decoded UTF8 code point:
 
-* `checkUTF8Illegal`: flag code points between 0xd800 and 0xdfff as 'illegal'
-* `checkUTF8Replacement`: flag the UTF8 replacement character (xfffd) as 'replacement'
-* `checkUTF8Specials`: flag code points between 0xfff0 and 0xffff as 'special'
-* `checkUTF8Bom`: flag the UTF8 BOM (0xfeff) as 'bom'
-* `checkUTF8MaxCodePoint`: flag code points >= 0x110000 as 'above-max'. Can be `true`, `false` or a number - in which case it will be used as the upper limit instead of 0x110000
-* `checkUTF8NonCanonicalEncoding`: flag unnecessary long encodings as 'non-canonical'
+* `checkUTF8Illegal`: flag code points between 0xd800 and 0xdfff as `illegal`
+* `checkUTF8Replacement`: flag the UTF8 replacement character (xfffd) as `replacement`
+* `checkUTF8Specials`: flag code points between 0xfff0 and 0xffff as `special`
+* `checkUTF8Bom`: flag the UTF8 BOM (0xfeff) as `bom`
+* `checkUTF8MaxCodePoint`: flag code points >= 0x110000 as `above-max`. Can be `true`, `false` or a number - in which case it will be used as the upper limit instead of 0x110000
+* `checkUTF8NonCanonicalEncoding`: flag unnecessary long encodings as `non-canonical`
 * `checkUTF8`: set `false` to disable all UTF8 checks.
 
 By default all checks are enabled.
