@@ -32,5 +32,5 @@
       "test": "mocha -R spec test",
       "watch": "mocha -R spec --watch test"
    },
-   "version": "0.1.2"
+   "version": "0.1.3"
 }
