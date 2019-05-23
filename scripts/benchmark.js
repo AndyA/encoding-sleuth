@@ -25,12 +25,20 @@ const len = 100000;
 const kinds = ["7bit", "UTF8", "Bad", "CorruptUTF8", "Anything"];
 const es = new EncodingSleuth();
 
+const esNoCheck = new EncodingSleuth({
+  checkUTF8: false
+});
+
 for (const kind of kinds) {
   const m = "random" + kind;
   const data = makeData((TestData[m])(), len);
 
   bm.add(kind, () => {
     drain(es, data);
+  });
+
+  bm.add(kind + " (no checks)", () => {
+    drain(esNoCheck, data);
   });
 }
 
