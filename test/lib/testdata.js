@@ -218,6 +218,14 @@ class TestData {
     return out;
   }
 
+  static fixSpanPos(spans) {
+    let pos = 0;
+    for (let span of spans) {
+      span.pos = pos;
+      pos += span.length;
+    }
+  }
+
   static mergeSpans(spans) {
     // Current span we're building
     let pos = 0;
