@@ -1,0 +1,11 @@
+=== plinth.20190523-173929 ===
+7bit x 603 ops/sec ±0.92% (91 runs sampled)
+7bit (no checks) x 601 ops/sec ±0.54% (82 runs sampled)
+UTF8 x 22.63 ops/sec ±2.46% (42 runs sampled)
+UTF8 (no checks) x 141 ops/sec ±0.55% (80 runs sampled)
+Bad x 195 ops/sec ±0.56% (82 runs sampled)
+Bad (no checks) x 192 ops/sec ±0.78% (82 runs sampled)
+CorruptUTF8 x 51.56 ops/sec ±0.78% (67 runs sampled)
+CorruptUTF8 (no checks) x 51.30 ops/sec ±0.88% (66 runs sampled)
+Anything x 19.66 ops/sec ±7.19% (37 runs sampled)
+Anything (no checks) x 22.12 ops/sec ±3.03% (40 runs sampled)

@@ -2,6 +2,19 @@
 
 const _ = require("lodash");
 
+let flagCache = {};
+
+function decodeFlags(flags) {
+  const f = flags.split(/\s+/).filter(x => x.length);
+  const out = {};
+  for (const flag of f) out[flag] = true;
+  return out;
+}
+
+function flagsToObject(flags) {
+  return flagCache[flags] = flagCache[flags] || decodeFlags(flags);
+}
+
 class ESIterator {
   constructor(opt, buf) {
     this.opt = opt;
@@ -118,6 +131,7 @@ class ESIterator {
     function addBuffer(span) {
       if (span) {
         span.buf = buf.subarray(span.pos, span.pos + span.length);
+        span.oflags = flagsToObject(span.flags);
         return {
           done: false,
           value: span

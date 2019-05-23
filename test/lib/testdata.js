@@ -226,6 +226,13 @@ class TestData {
     }
   }
 
+  static flagsToObject(flags) {
+    const f = flags.split(/\s+/).filter(x => x.length);
+    const out = {};
+    for (const flag of f) out[flag] = true;
+    return out;
+  }
+
   static mergeSpans(spans) {
     // Current span we're building
     let pos = 0;
@@ -238,13 +245,14 @@ class TestData {
 
     let out = [];
 
-    function flushSpan() {
+    const flushSpan = () => {
       if (lastEnc === null)
         return;
 
       out.push({
         enc: lastEnc,
         flags: lastFlags,
+        oflags: this.flagsToObject(lastFlags),
         pos,
         length,
         cp,
