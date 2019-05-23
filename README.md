@@ -113,7 +113,11 @@ Each span is an object like this:
 }
 ```
 
-A span describes a run of bytes. Each span has a `pos` where it starts in the original bytes, a `length` indicating how many bytes it covers and a `buf` containing the actual bytes for this span. The returned spans don't overlap; joining their `buf` fields would yield the original input.
+A span describes a run of bytes. Each span has a `pos` where it starts
+in the original bytes, a `length` indicating how many bytes it covers
+and a `buf` containing the actual bytes for this span. The returned
+spans don't overlap; joining their `buf` fields would yield the
+original input.
 
 The `enc` field describes the encoding of this span of bytes:
 
@@ -121,38 +125,54 @@ The `enc` field describes the encoding of this span of bytes:
 * `utf8`: a run of syntactically valid UTF8 encodings
 * `unknown`: any bytes that are neither `7bit` or `utf8`
 
-For `utf8` the `cp` array contains a list of decoded UTF8 code points. For `7bit` or `unknown` it contains the byte values within this span.
+For `utf8` the `cp` array contains a list of decoded UTF8 code points.
+For `7bit` or `unknown` it contains the byte values within this span.
 
 ### UTF8
 
-Syntactically valid UTF8 takes one of the following forms
+Syntactically valid UTF8 takes one of the following forms:
 
-```
-bytes bits   min        max        representation
-used  enc    (hex)      (hex)      (binary)
-1      7     00000000   0000007f   0xxxxxxx
-2     11     00000080   000007FF   110xxxxx  10xxxxxx
-3     16     00000800   0000FFFF   1110xxxx  10xxxxxx  10xxxxxx
-4     21     00010000   001FFFFF   11110xxx  10xxxxxx  10xxxxxx  10xxxxxx
-5     26     00200000   03FFFFFF   111110xx  10xxxxxx  10xxxxxx  10xxxxxx  10xxxxxx
-6     31     04000000   7FFFFFFF   1111110x  10xxxxxx  10xxxxxx  10xxxxxx  10xxxxxx  10xxxxxx
-```
+| bytes used | bits encoded | min (hex)    | max (hex)    | representation (binary)                                                       |
+|-----------:|-------------:|-------------:|-------------:|-------------------------------------------------------------------------------|
+| `1`        |  `7`         | `0x00000000` | `0x0000007f` | `0b0xxxxxxx`                                                                  |
+| `2`        | `11`         | `0x00000080` | `0x000007FF` | `0b110xxxxx` `0b10xxxxxx`                                                     |
+| `3`        | `16`         | `0x00000800` | `0x0000FFFF` | `0b1110xxxx` `0b10xxxxxx` `0b10xxxxxx`                                        |
+| `4`        | `21`         | `0x00010000` | `0x001FFFFF` | `0b11110xxx` `0b10xxxxxx` `0b10xxxxxx` `0b10xxxxxx`                           |
+| `5`        | `26`         | `0x00200000` | `0x03FFFFFF` | `0b111110xx` `0b10xxxxxx` `0b10xxxxxx` `0b10xxxxxx` `0b10xxxxxx`              |
+| `6`        | `31`         | `0x04000000` | `0x7FFFFFFF` | `0b1111110x` `0b10xxxxxx` `0b10xxxxxx` `0b10xxxxxx` `0b10xxxxxx` `0b10xxxxxx` |
 
-The single byte form (0x00 - 0x7F) is 7 bit safe, synonymous with ASCII and is identified as `7bit`.
+The single byte form (0x00 - 0x7F) is 7 bit safe, synonymous with ASCII
+and is identified as `7bit`.
 
-The other forms are identiedied as 'utf8' and allow any code point between 0x80 an 0x7fffffff to be encoded.
+The other forms are identified as 'utf8' and allow any code point
+between 0x80 an 0x7fffffff to be encoded.
 
 ### flags
 
-The `flags` and `f` fields are only interesting for UTF8 sequences. With all checks enabled (see constructor above) the following flags will be set for each utf8 span:
+The `flags` and `f` fields are only populated for UTF8 sequences. With
+all checks enabled (see constructor above) the following flags will be
+set for each utf8 span:
 
-* flag code points between 0xd800 and 0xdfff as '`illegal`'; these are surrogates that shouldn't appear in valid utf8
-* flag the UTF8 replacement character (xfffd) as '`replacement`'; often used to represent invalid characters
+* flag code points between 0xd800 and 0xdfff as '`illegal`'; these are
+  surrogates that shouldn't appear in valid utf8
+* flag the UTF8 replacement character (xfffd) as '`replacement`'; often
+  used to represent invalid characters
 * flag code points between 0xfff0 and 0xffff as '`special`'
 * flag the UTF8 BOM (0xfeff) as '`bom`'
 * flag code points >= 0x110000 as '`above-max`'
 * flag unnecessary long encodings as '`non-canonical`'
 
-During parsing by `analyse` a new span is returned each time the `enc` or `flags` fields change; runs of bytes with the same encoding are returned as a single span. There's a very slight speed-up from turning off tests that you're not interested in but the main reason to disable checks is to simplify processing of the returned spans. Generally it's fine to use the defaults.
+During parsing by `analyse` a new span is returned each time the `enc`
+or `flags` fields change; runs of bytes with the same encoding are
+returned as a single span. There's a very slight speed-up from turning
+off tests that you're not interested in but the main reason to disable
+checks is to simplify processing of the returned spans. Generally it's
+fine to use the defaults.
 
-`non-canonical` UTF8 sequences are syntactically valid UTF8 that use more bytes than necessary to encode a particular code point. For example any code point between 0x00 and 0x80000000 can be encoded using the 6 byte form but, in practice, valid UTF8 will use the shortest possible encoding so `non-canonical` may indicate that the bytes being analysed are not "normal" UTF8.
+`non-canonical` UTF8 sequences are syntactically valid UTF8 that use
+more bytes than necessary to encode a particular code point. For example
+any code point between 0x00 and 0x80000000 can be encoded using the 6
+byte form but, in practice, valid UTF8 will use the shortest possible
+encoding so `non-canonical` may indicate that the bytes being analysed
+are not "normal" UTF8.
+
