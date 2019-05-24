@@ -1,5 +1,3 @@
-"use strict";
-
 const EncodingSleuth = require("encoding-sleuth");
 
 const es = new EncodingSleuth();
