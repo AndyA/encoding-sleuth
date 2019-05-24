@@ -1,0 +1,66 @@
+#!/usr/bin/env node
+
+const _ = require("lodash");
+const EncodingSleuth = require("../");
+
+const stdin = process.stdin;
+
+const es = new EncodingSleuth();
+
+let stats = {};
+
+stdin.on("data", chunk => {
+  for (const span of es.analyse(chunk)) {
+    let desc = span.enc;
+    if (span.flags.length)
+      desc += " (" + span.flags + ")";
+
+    const slot = (stats[desc] = stats[desc] || {
+      spans: 0,
+      chars: 0,
+      bytes: 0,
+      first: span.pos,
+    });
+
+    slot.spans++;
+    slot.chars += span.cp.length;
+    slot.bytes += span.length;
+    slot.last = span.pos + span.length;
+  }
+});
+
+stdin.on("end", () => {
+  showStats(stats);
+});
+
+stdin.resume();
+
+function showStats(stats) {
+  let descs = Object.keys(stats).sort();
+  const descCaption = "encoding (flags)";
+  const descWidth = Math.max(descCaption.length,
+    Math.max.apply(null, descs.map(x => x.length)));
+
+  function showRow(desc, slot) {
+    console.log(
+      _.padEnd(desc, descWidth) + " " +
+      _.padStart(slot.first, 9) + " " +
+      _.padStart(slot.last, 9) + " " +
+      _.padStart(slot.spans, 9) + " " +
+      _.padStart(slot.chars, 9) + " " +
+      _.padStart(slot.bytes, 9))
+  }
+
+  showRow(descCaption, {
+    first: "first",
+    last: "last",
+    spans: "spans",
+    chars: "chars",
+    bytes: "bytes"
+  });
+
+  for (const desc of descs)
+    showRow(desc, stats[desc]);
+}
+
+// vim:ts=2:sw=2:sts=2:et:ft=javascript
