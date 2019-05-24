@@ -68,8 +68,8 @@ Each option enables a check that is performed on every decoded UTF8 code point:
 * `checkUTF8Replacement`: flag the UTF8 replacement character (xfffd) as `replacement`
 * `checkUTF8Specials`: flag code points between 0xfff0 and 0xffff as `special`
 * `checkUTF8Bom`: flag the UTF8 BOM (0xfeff) as `bom`
-* `checkUTF8MaxCodePoint`: flag code points >= 0x110000 as `above-max`. Can be `true`, `false` or a number - in which case it will be used as the upper limit instead of 0x110000
-* `checkUTF8NonCanonicalEncoding`: flag unnecessary long encodings as `non-canonical`
+* `checkUTF8MaxCodePoint`: flag code points >= 0x110000 as `aboveMax`. Can be `true`, `false` or a number - in which case it will be used as the upper limit instead of 0x110000
+* `checkUTF8NonCanonicalEncoding`: flag unnecessary long encodings as `nonCanonical`
 * `checkUTF8`: set `false` to disable all UTF8 checks.
 
 By default all checks are enabled.
@@ -159,8 +159,8 @@ above) the following flags may be set for each `utf8` span:
   used to represent invalid characters
 * flag code points between 0xfff0 and 0xffff as '`special`'
 * flag the UTF8 BOM (0xfeff) as '`bom`'
-* flag code points >= 0x110000 as '`above-max`'
-* flag unnecessary long encodings as '`non-canonical`'
+* flag code points >= 0x110000 as '`aboveMax`'
+* flag unnecessary long encodings as '`nonCanonical`'
 
 Generally speaking the presence of any of these flags is likely to
 indicate a problem with the input data; the precise interpretation
@@ -168,11 +168,11 @@ depends on your use case.
 
 ### Non-canonical UTF8
 
-`non-canonical` UTF8 sequences are syntactically valid UTF8 that use
+`nonCanonical` UTF8 sequences are syntactically valid UTF8 that use
 more bytes than necessary to encode a particular code point. Any code
 point between 0x00 and 0x80000000 can be encoded using the 6 byte form
 but, in practice, valid UTF8 will use the shortest possible encoding so
-`non-canonical` may indicate that the bytes being analysed are not
+`nonCanonical` may indicate that the bytes being analysed are not
 "normal" UTF8.
 
 During parsing by `analyse` a new span is returned each time the `enc`

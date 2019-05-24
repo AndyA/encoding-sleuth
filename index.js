@@ -70,9 +70,9 @@ class ESIterator {
         if (opt.checkUTF8Replacement && cp === 0xfffd)
           f.push("replacement");
         if (opt.checkUTF8MaxCodePoint !== false && cp >= opt.checkUTF8MaxCodePoint)
-          f.push("above-max");
+          f.push("aboveMax");
         if (opt.checkUTF8NonCanonicalEncoding && cp < Math.max(0x80, 1 << (length * 5 - 4)))
-          f.push("non-canonical");
+          f.push("nonCanonical");
         flags = f.join(" ");
       }
 

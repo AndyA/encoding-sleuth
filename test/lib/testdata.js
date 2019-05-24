@@ -121,7 +121,7 @@ class TestData {
       }, {
         weight: 1,
         f: () => {
-          return makeSpan(r.randomBetween(0x110000, 0x80000000), "above-max");
+          return makeSpan(r.randomBetween(0x110000, 0x80000000), "aboveMax");
         }
       }, {
         weight: 1,
@@ -140,7 +140,7 @@ class TestData {
         }
       }]);
 
-    // Sometimes non-canonicalise a char.
+    // Sometimes nonCanonicalise a char.
     const rrnc = new RunRandom([
       {
         weight: 10,
@@ -155,7 +155,7 @@ class TestData {
           const buf = encodeUTF8(span.cp, newLen);
           span.length = buf.length;
           span.buf = buf;
-          span.flags = this.addFlags(span.flags, "non-canonical");
+          span.flags = this.addFlags(span.flags, "nonCanonical");
           return span
         }
       }

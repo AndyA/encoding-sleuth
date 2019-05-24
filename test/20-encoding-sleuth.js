@@ -15,8 +15,8 @@ const checkMap = {
   checkUTF8Specials: "special",
   checkUTF8Bom: "bom",
   checkUTF8Replacement: "replacement",
-  checkUTF8MaxCodePoint: "above-max",
-  checkUTF8NonCanonicalEncoding: "non-canonical"
+  checkUTF8MaxCodePoint: "aboveMax",
+  checkUTF8NonCanonicalEncoding: "nonCanonical"
 };
 
 function checkSleuth(es, ref, msg) {
