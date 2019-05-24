@@ -113,7 +113,7 @@ Each span is an object like this:
 }
 ```
 
-A span describes a contious run of bytes. Each span has a `pos` where it
+A span describes a contiguous run of bytes. Each span has a `pos` where it
 starts in the original bytes, a `length` indicating how many bytes it
 covers and a `buf` containing the actual bytes for this span. The
 returned spans are contiguous and don't overlap; joining their `buf`
