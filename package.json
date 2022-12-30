@@ -14,7 +14,7 @@
       "benchmark" : "^2.1.4",
       "chai" : "^4.2.0",
       "microtime" : "^3.0.0",
-      "mocha" : "^6.1.4"
+      "mocha" : "^10.2.0"
    },
    "homepage" : "https://github.com/AndyA/encoding-sleuth#readme",
    "keywords" : [
